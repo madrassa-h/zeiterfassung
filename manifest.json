@@ -1,0 +1,40 @@
+{
+  "name": "Madrassa Verwaltung",
+  "short_name": "Madrassa",
+  "description": "Zeiterfassung und Management – Madrassa Hannover e.V.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#1d3a6e",
+  "background_color": "#faf6ef",
+  "lang": "de",
+  "icons": [
+    {
+      "src": "images/logo.PNG",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "images/logo.PNG",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Stunden eintragen",
+      "short_name": "Eintragen",
+      "url": "./index.html",
+      "icons": [{ "src": "images/logo.PNG", "sizes": "192x192" }]
+    },
+    {
+      "name": "Admin Bereich",
+      "short_name": "Admin",
+      "url": "./modir.html",
+      "icons": [{ "src": "images/logo.PNG", "sizes": "192x192" }]
+    }
+  ]
+}

@@ -1,0 +1,1479 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>Madrassa Verwaltung</title>
+  <meta name="robots" content="noindex,nofollow"/>
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="theme-color" content="#1d3a6e"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="Madrassa"/>
+  <link rel="apple-touch-icon" href="images/logo.PNG"/>
+
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"/>
+
+  <style>
+  /* Hier geht dein CSS ganz normal weiter... */
+    :root{
+      --blue:#2c5282;--blue-light:#4070b8;--blue-dark:#1d3a6e;
+      --gold:#c4973a;--gold-light:#e8b84b;
+      --cream:#faf6ef;--sand:#f0e8d6;--text:#1a1a1a;--text-muted:#6b6355;
+      --border:#d4c9b0;--error:#c0392b;--green:#27ae60;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:"DM Sans",sans-serif;background:var(--cream);color:var(--text);min-height:100vh}
+
+    /* LOGIN */
+    #loginScreen{min-height:100vh;background:linear-gradient(160deg,var(--blue-dark) 0%,var(--blue) 55%,var(--blue-light) 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+    .login-logo-img{width:80px;height:80px;object-fit:contain;border-radius:50%;background:#fff;padding:4px;margin-bottom:14px;box-shadow:0 8px 32px rgba(0,0,0,.3)}
+    .login-title{font-family:"Amiri",serif;font-size:1.9rem;color:#fff;text-align:center;margin-bottom:4px}
+    .login-sub{color:rgba(255,255,255,.7);font-size:.85rem;text-align:center;margin-bottom:28px}
+    .login-card{background:#fff;border-radius:20px;padding:28px 22px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+    .lf{margin-bottom:13px}
+    .lf label{display:block;font-size:.72rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
+    .lf input{width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:.92rem;outline:none;transition:border-color .2s;background:var(--cream)}
+    .lf input:focus{border-color:var(--blue);background:#fff}
+    .login-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--blue),var(--blue-light));color:#fff;border:none;border-radius:10px;font-family:inherit;font-size:.95rem;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(44,82,130,.35);margin-top:4px;transition:all .2s}
+    .login-btn:hover{transform:translateY(-1px)}
+    .login-btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
+    .login-err{background:rgba(192,57,43,.08);color:var(--error);border-left:3px solid var(--error);padding:10px 12px;border-radius:6px;font-size:.79rem;margin-bottom:12px;display:none}
+
+    /* NAV */
+    #adminApp{display:none;min-height:100vh}
+    .adm-nav{background:linear-gradient(135deg,var(--blue-dark),var(--blue));padding:0 16px;display:flex;align-items:center;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.2);gap:0}
+    .adm-nav-logo{display:flex;align-items:center;gap:10px;padding:11px 16px 11px 0;border-right:1px solid rgba(255,255,255,.15);margin-right:4px;flex-shrink:0}
+    .adm-nav-logo img{width:34px;height:34px;object-fit:contain;border-radius:50%;background:#fff;padding:2px}
+    .adm-logo-text{font-family:"Amiri",serif;font-size:1.1rem;color:#fff;line-height:1.1;white-space:nowrap}
+    .adm-logo-sub{font-size:.6rem;color:rgba(255,255,255,.6)}
+    .adm-tabs{display:flex;flex:1;overflow-x:auto;scrollbar-width:none}
+    .adm-tabs::-webkit-scrollbar{display:none}
+    .adm-tab{background:none;border:none;border-bottom:3px solid transparent;padding:16px 13px;cursor:pointer;font-family:"DM Sans",sans-serif;font-size:.78rem;font-weight:500;color:rgba(255,255,255,.78);transition:all .2s;white-space:nowrap;flex-shrink:0}
+    .adm-tab.on{color:#fff;border-bottom-color:var(--gold);font-weight:700}
+    .adm-tab:hover{color:#fff;background:rgba(255,255,255,.08)}
+    .adm-logout{background:none;border:1.5px solid rgba(255,255,255,.25);color:rgba(255,255,255,.6);padding:7px 13px;cursor:pointer;font-family:"DM Sans",sans-serif;font-size:.72rem;font-weight:500;border-radius:8px;transition:all .2s;flex-shrink:0;margin-left:8px}
+    .adm-logout:hover{border-color:var(--error);color:#ff8080}
+
+    /* BODY */
+    .adm-body{padding:24px;max-width:1200px;margin:0 auto}
+    .adm-page{display:none}
+    .adm-page.on{display:block;animation:fadeUp .22s ease both}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+    .adm-ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px}
+    .adm-title{font-family:"Amiri",serif;font-size:1.7rem;color:var(--blue-dark)}
+
+    /* STATS */
+    .adm-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}
+    .adm-stat{background:#fff;padding:20px;border-radius:14px;border-left:4px solid var(--gold);box-shadow:0 2px 10px rgba(0,0,0,.05)}
+    .adm-stat.blue{border-left-color:var(--blue)}
+    .adm-stat.green{border-left-color:var(--green)}
+    .adm-stat-n{font-size:2.1rem;font-weight:700;color:var(--blue-dark);line-height:1}
+    .adm-stat.blue .adm-stat-n{color:var(--blue)}
+    .adm-stat.green .adm-stat-n{color:var(--green)}
+    .adm-stat-l{font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-top:5px}
+
+    /* TABLE */
+    .adm-table{width:100%;background:#fff;overflow-x:auto;display:block;border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.05)}
+    .adm-table table{width:100%;border-collapse:collapse;min-width:540px}
+    .adm-table th{font-size:.66rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-muted);text-align:left;padding:12px 14px;border-bottom:2px solid var(--sand);background:var(--cream)}
+    .adm-table td{padding:11px 14px;border-bottom:1px solid var(--sand);font-size:.83rem;vertical-align:middle}
+    .adm-table tr:last-child td{border-bottom:none}
+    .adm-table tr:hover td{background:#faf3e8}
+
+    /* BADGES */
+    .adm-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+    .bg-gold{background:#fef3cd;color:#b07d00}
+    .bg-blue{background:rgba(44,82,130,.1);color:var(--blue)}
+    .bg-green{background:rgba(39,174,96,.12);color:#1a7a42}
+    .bg-sand{background:var(--sand);color:var(--text-muted)}
+
+    /* BUTTONS */
+    .btn{border:none;border-radius:8px;padding:8px 15px;cursor:pointer;font-family:"DM Sans",sans-serif;font-size:.76rem;font-weight:600;transition:all .15s;display:inline-flex;align-items:center;gap:5px}
+    .btn-blue{background:var(--blue);color:#fff} .btn-blue:hover{background:var(--blue-dark)}
+    .btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold-light));color:#fff} .btn-gold:hover{opacity:.9}
+    .btn-red{background:var(--error);color:#fff} .btn-red:hover{opacity:.85}
+    .btn-dark{background:var(--blue-dark);color:#fff} .btn-dark:hover{opacity:.9}
+    .btn-ghost{background:#fff;border:1.5px solid var(--border);color:var(--text-muted)} .btn-ghost:hover{border-color:var(--blue);color:var(--blue)}
+    .btn-sm{padding:5px 10px;font-size:.7rem;border-radius:7px}
+    .btn-export{background:#fff;border:1.5px solid var(--border);color:var(--text-muted);padding:7px 13px;border-radius:9px;cursor:pointer;font-family:"DM Sans",sans-serif;font-size:.73rem;font-weight:600;transition:all .2s;display:inline-flex;align-items:center;gap:5px}
+    .btn-export:hover{border-color:var(--gold);color:var(--gold)}
+
+    /* FILTER */
+    .adm-filterbar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+    .adm-search{padding:9px 13px;border:1.5px solid var(--border);background:#fff;border-radius:10px;font-family:"DM Sans",sans-serif;font-size:.82rem;color:var(--text);outline:none;min-width:180px;transition:border-color .2s}
+    .adm-search:focus{border-color:var(--blue)}
+    .adm-sel{padding:9px 11px;border:1.5px solid var(--border);background:#fff;border-radius:10px;font-family:"DM Sans",sans-serif;font-size:.8rem;color:var(--text);outline:none;cursor:pointer}
+    .adm-sel:focus{border-color:var(--blue)}
+
+    /* MONTH NAV */
+    .month-hdr{display:flex;align-items:center;gap:10px;background:#fff;border-radius:12px;padding:8px 12px;box-shadow:0 1px 6px rgba(0,0,0,.06)}
+    .month-btn{background:none;border:1.5px solid var(--border);border-radius:8px;width:32px;height:32px;cursor:pointer;color:var(--blue);font-size:1.1rem;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+    .month-btn:hover{background:var(--blue);color:#fff;border-color:var(--blue)}
+    .month-display{font-family:"Amiri",serif;font-size:1.2rem;color:var(--blue-dark);min-width:140px;text-align:center}
+
+    /* MODAL */
+    .adm-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;padding:16px}
+    .adm-modal.on{display:flex}
+    .adm-mbox{background:#fff;border-radius:20px;padding:28px;width:100%;max-width:640px;max-height:92vh;overflow-y:auto;position:relative;animation:fadeUp .2s ease;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+    .adm-mbox h3{font-family:"Amiri",serif;font-size:1.4rem;color:var(--blue-dark);margin-bottom:18px}
+    .adm-fg{display:flex;flex-direction:column;gap:5px;margin-bottom:13px}
+    .adm-fg label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted)}
+    .adm-fg input,.adm-fg select,.adm-fg textarea{padding:10px 13px;border:1.5px solid var(--border);background:var(--cream);border-radius:9px;font-family:"DM Sans",sans-serif;font-size:.88rem;color:var(--text);outline:none;width:100%;transition:border-color .2s}
+    .adm-fg input:focus,.adm-fg select:focus,.adm-fg textarea:focus{border-color:var(--blue);background:#fff}
+    .adm-frow{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+    .adm-msg{font-size:.78rem;padding:9px 12px;border-radius:7px;margin:7px 0;display:none}
+    .adm-msg.ok{background:rgba(39,174,96,.1);color:#1a7a42;border-left:3px solid var(--green);display:block}
+    .adm-msg.err{background:rgba(192,57,43,.08);color:var(--error);border-left:3px solid var(--error);display:block}
+
+    /* CONFIRM */
+    .confirm-box{background:#fff;border-radius:18px;padding:30px;width:100%;max-width:380px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.25);animation:fadeUp .15s ease}
+    .confirm-box h4{font-family:"Amiri",serif;font-size:1.3rem;color:var(--blue-dark);margin-bottom:10px}
+    .confirm-box p{font-size:.85rem;color:var(--text-muted);margin-bottom:22px;line-height:1.6}
+    .confirm-btns{display:flex;gap:10px;justify-content:center}
+
+    /* DAY TABLE */
+    .day-table{width:100%;border-collapse:collapse;margin:12px 0;border-radius:10px;overflow:hidden}
+    .day-table th{font-size:.64rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);padding:8px 11px;border-bottom:2px solid var(--sand);text-align:left;background:var(--cream)}
+    .day-table td{padding:7px 11px;border-bottom:1px solid var(--sand);font-size:.82rem}
+    .day-table tr.weekend td{background:#fdf7ee;color:var(--text-muted)}
+    .day-table tr:last-child td{border-bottom:none}
+    .day-table .h-edit{width:60px;padding:5px 7px;border:1.5px solid var(--border);background:#fff;border-radius:7px;font-family:"DM Sans",sans-serif;font-size:.82rem;text-align:center;outline:none}
+    .day-table .h-edit:focus{border-color:var(--blue)}
+    .total-row{display:flex;justify-content:flex-end;gap:20px;padding:13px 0;border-top:2px solid var(--sand);margin-top:6px}
+    .total-item{text-align:right}
+    .total-lbl{font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted)}
+    .total-val{font-size:1.4rem;font-weight:700;color:var(--blue-dark)}
+    .total-val.green{color:var(--green)}
+
+    /* PRINT/PDF AREA */
+    .print-card{background:#fff;border:1px solid var(--sand);border-radius:14px;padding:32px;margin-top:16px;box-shadow:0 2px 10px rgba(0,0,0,.05)}
+    .print-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px;padding-bottom:18px;border-bottom:3px solid var(--blue)}
+    .print-logo-wrap{display:flex;align-items:center;gap:12px}
+    .print-logo-wrap img{width:52px;height:52px;object-fit:contain;border-radius:50%;border:2px solid var(--sand)}
+    .print-org{font-family:"Amiri",serif;font-size:1.45rem;color:var(--blue-dark);line-height:1.2}
+    .print-org-sub{font-size:.76rem;color:var(--text-muted);margin-top:3px}
+    .print-period{text-align:right}
+    .print-period-lbl{font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted)}
+    .print-period-val{font-size:1.15rem;font-weight:700;color:var(--blue-dark);margin-top:3px}
+    .print-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:22px}
+    .print-sec-lbl{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--sand)}
+    .print-info-text{font-size:.86rem;line-height:1.9;color:var(--text)}
+    .print-table{width:100%;border-collapse:collapse;margin-bottom:20px;font-size:.83rem}
+    .print-table thead th{background:var(--blue);color:#fff;padding:9px 12px;text-align:left;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+    .print-table thead th:last-child{text-align:right}
+    .print-table td{padding:8px 12px;border-bottom:1px solid var(--sand)}
+    .print-table td:last-child{text-align:right}
+    .print-table tr.weekend td{background:#fdf7ee;color:var(--text-muted)}
+    .print-table tfoot td{background:var(--sand);font-weight:700;border-top:2px solid var(--border);border-bottom:none}
+    .print-table tfoot td:last-child{text-align:right}
+    .print-summary{background:var(--cream);border:1px solid var(--sand);border-radius:10px;padding:18px}
+    .print-sum-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:.86rem;border-bottom:1px solid var(--sand)}
+    .print-sum-row:last-child{border-bottom:none;padding-top:12px;margin-top:4px;border-top:2px solid var(--blue);font-weight:700;font-size:1rem;color:var(--blue-dark)}
+    .print-footer{margin-top:16px;font-size:.7rem;color:var(--text-muted);border-top:1px solid var(--sand);padding-top:10px;text-align:center}
+
+    /* TOAST */
+    .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(18px);background:var(--blue-dark);color:#fff;padding:12px 24px;border-radius:11px;font-size:.82rem;font-weight:500;opacity:0;transition:all .3s;z-index:99999;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    .toast.ok{background:var(--green)} .toast.err{background:var(--error)}
+
+    .spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;display:inline-block;vertical-align:middle;margin-right:5px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    @media print{
+      .no-print{display:none!important}
+      body{background:#fff}
+      .adm-nav,.adm-filterbar{display:none!important}
+      .print-card{border:none;box-shadow:none;padding:0;border-radius:0;margin:0}
+      .adm-body{padding:0}
+      .adm-ph{display:none}
+    }
+
+    /* ── MOBILE HAMBURGER NAV ─────────────────────────── */
+    .mob-menu-btn{display:none;background:none;border:none;color:#fff;font-size:1.5rem;cursor:pointer;padding:4px 8px;margin-left:auto;flex-shrink:0}
+    .adm-nav-actions{display:flex;align-items:center;gap:6px;margin-left:auto}
+
+    /* ── MOBILE BOTTOM NAV ───────────────────────────── */
+    .mob-bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);z-index:300;box-shadow:0 -2px 12px rgba(0,0,0,.1)}
+    .mob-bnav-inner{display:flex;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+    .mob-bnav-inner::-webkit-scrollbar{display:none}
+    .mob-nav-item{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;padding:11px 14px;cursor:pointer;border:none;background:none;font-family:"DM Sans",sans-serif;color:var(--text-muted);font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;gap:4px;transition:color .2s}
+    .mob-nav-item.on{color:var(--blue)}
+    .mob-nav-icon{font-size:1.45rem;line-height:1}
+
+    @media(max-width:768px){
+      /* Nav: hide desktop tabs, show hamburger */
+      .adm-tabs{display:none!important}
+      .adm-logout{display:none}
+      .mob-menu-btn{display:block}
+      .mob-bottom-nav{display:block}
+
+      /* Body padding for bottom nav */
+      #adminApp{padding-bottom:70px}
+      .adm-body{padding:12px 10px}
+
+      /* Dashboard 4-col → 2-col */
+      #adm-dashboard [style*="grid-template-columns:repeat(4,1fr)"]{
+        display:grid!important;
+        grid-template-columns:1fr 1fr!important;
+        gap:10px!important;
+      }
+      /* Charts 2-col → 1-col */
+      #adm-dashboard [style*="grid-template-columns:1fr 1fr"]{
+        display:grid!important;
+        grid-template-columns:1fr!important;
+      }
+      .adm-stat-n{font-size:1.5rem!important}
+
+      /* Page header wrap */
+      .adm-ph{flex-direction:column;align-items:flex-start;gap:8px}
+      .adm-ph>div{width:100%;flex-wrap:wrap}
+
+      /* Month nav full-width */
+      .month-hdr{width:100%;justify-content:center}
+
+      /* Filter bar full-width */
+      .adm-filterbar{flex-direction:column;align-items:stretch}
+      .adm-search,.adm-sel{width:100%;min-width:unset}
+
+      /* Modal */
+      .adm-mbox{padding:20px 14px;border-radius:16px}
+      .adm-frow{grid-template-columns:1fr}
+
+      /* Print card */
+      .print-info-grid{grid-template-columns:1fr}
+      .print-card{padding:16px}
+      .print-header{flex-direction:column;gap:12px}
+      .print-period{text-align:left}
+
+      /* Table action buttons stack */
+      .adm-table td [style*="display:flex;gap:5px"]{flex-wrap:wrap}
+
+      /* Abrechnung filter bar */
+      #adm-abrechnung .adm-filterbar{flex-direction:column;align-items:stretch}
+      #adm-abrechnung .month-hdr{margin-bottom:0}
+      #adm-abrechnung select[id="abrMA"]{min-width:unset;width:100%}
+    }
+    @media(max-width:400px){
+      .adm-nav-logo .adm-logo-text{font-size:.9rem}
+      .adm-stat-n{font-size:1.3rem!important}
+    }
+    #ptrIndicator{position:fixed;top:0;left:50%;transform:translateX(-50%) translateY(-40px);background:var(--blue);color:#fff;border-radius:0 0 20px 20px;padding:6px 18px;font-size:.78rem;font-weight:600;z-index:9998;opacity:0;pointer-events:none;display:flex;align-items:center;gap:6px}
+    .ptr-arrow{display:inline-block;transition:transform .2s;font-size:1rem}
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+<div id="ptrIndicator"><span class="ptr-arrow">↓</span> Zum Aktualisieren ziehen</div>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <img src="images/logo.PNG" onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name=M&background=2c5282&color=fff&size=90&bold=true&rounded=true'" alt="Logo" class="login-logo-img"/>
+  <div class="login-title">Zeiterfassung</div>
+  <div style="font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:800;letter-spacing:.18em;color:var(--gold-light);text-transform:uppercase;margin-bottom:2px;text-align:center">ADMIN</div>
+  <div class="login-sub">Madrassa Hannover e.V.</div>
+  <div class="login-card">
+    <div id="admLoginErr" class="login-err"></div>
+    <div class="lf"><label>E-Mail</label><input type="email" id="admEmail" autocomplete="username"/></div>
+    <div class="lf"><label>Passwort</label><input type="password" id="admPw" autocomplete="current-password" onkeydown="if(event.key==='Enter')admLogin()"/></div>
+    <button class="login-btn" id="admLoginBtn" onclick="admLogin()">Anmelden</button>
+  </div>
+</div>
+
+<!-- ADMIN APP -->
+<div id="adminApp">
+  <nav class="adm-nav">
+    <div class="adm-nav-logo">
+      <img src="images/logo.PNG" onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name=M&background=ffffff&color=2c5282&size=60&bold=true&rounded=true'" alt="Logo"/>
+      <div><div class="adm-logo-text">Madrassa Hannover</div><div class="adm-logo-sub">Admin · Zeiterfassung</div></div>
+    </div>
+    <div class="adm-tabs">
+      <button class="adm-tab on" onclick="admShowPage('dashboard',this)">📊 Dashboard</button>
+      <button class="adm-tab" onclick="admShowPage('mitarbeiter',this)">👥 Mitarbeiter</button>
+      <button class="adm-tab" onclick="admShowPage('zeiterfassung',this)">⏱ Zeiterfassung</button>
+      <button class="adm-tab" onclick="admShowPage('zeitkonto',this)">💰 Zeitkonto</button>
+      <button class="adm-tab" onclick="admShowPage('abrechnung',this)">📄 Abrechnung</button>
+      <button class="adm-tab" onclick="admShowPage('einstellungen',this)">⚙️ Einstellungen</button>
+    </div>
+    <div class="adm-nav-actions">
+      <button class="adm-logout" onclick="admLogout()">🔒 Abmelden</button>
+    </div>
+  </nav>
+
+  <!-- MOBILE BOTTOM NAV -->
+  <nav class="mob-bottom-nav" id="mobBottomNav">
+    <div class="mob-bnav-inner">
+      <button class="mob-nav-item on" onclick="mobNav('dashboard',this)"><span class="mob-nav-icon">📊</span>Dashboard</button>
+      <button class="mob-nav-item" onclick="mobNav('mitarbeiter',this)"><span class="mob-nav-icon">👥</span>Personal</button>
+      <button class="mob-nav-item" onclick="mobNav('zeiterfassung',this)"><span class="mob-nav-icon">⏱</span>Zeiten</button>
+      <button class="mob-nav-item" onclick="mobNav('zeitkonto',this)"><span class="mob-nav-icon">💰</span>Konto</button>
+      <button class="mob-nav-item" onclick="mobNav('abrechnung',this)"><span class="mob-nav-icon">📄</span>Abrechnung</button>
+      <button class="mob-nav-item" onclick="mobNav('einstellungen',this)"><span class="mob-nav-icon">⚙️</span>Settings</button>
+      <button class="mob-nav-item" onclick="admLogout()"><span class="mob-nav-icon">🔒</span>Abmelden</button>
+    </div>
+  </nav>
+
+  <div class="adm-body">
+
+    <!-- DASHBOARD -->
+    <div class="adm-page on" id="adm-dashboard">
+      <div class="adm-ph">
+        <h2 class="adm-title">Dashboard</h2>
+        <span id="admWelcome" style="font-size:.8rem;color:var(--text-muted)"></span>
+      </div>
+      <!-- KPI Kacheln -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
+        <div class="adm-stat blue"><div class="adm-stat-n" id="statMA">–</div><div class="adm-stat-l">Mitarbeiter</div></div>
+        <div class="adm-stat green"><div class="adm-stat-n" id="statMonatH">–</div><div class="adm-stat-l">Stunden lfd. Monat</div></div>
+        <div class="adm-stat" style="border-left-color:var(--gold)"><div class="adm-stat-n" id="statOffenCount" style="color:var(--gold)">–</div><div class="adm-stat-l">Offen / Ausstehend</div></div>
+        <div class="adm-stat" style="border-left-color:#8e44ad"><div class="adm-stat-n" id="statMonatBetrag" style="color:#8e44ad;font-size:1.4rem">–</div><div class="adm-stat-l">Auszahlung lfd. Monat</div></div>
+      </div>
+      <!-- Charts: 12 Monate -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+        <div style="background:#fff;border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(0,0,0,.05)">
+          <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);margin-bottom:14px">📈 Stunden – letztes Jahr (12 Monate)</div>
+          <canvas id="chartStunden" height="140"></canvas>
+        </div>
+        <div style="background:#fff;border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(0,0,0,.05)">
+          <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);margin-bottom:14px">💶 Auszahlungen – letztes Jahr (12 Monate)</div>
+          <canvas id="chartAuszahlung" height="140"></canvas>
+        </div>
+      </div>
+      <!-- Top MA + ZK-Saldo -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+        <div style="background:#fff;border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(0,0,0,.05)">
+          <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);margin-bottom:14px">🏆 Top Mitarbeiter (Stunden gesamt)</div>
+          <div id="topMAList"></div>
+        </div>
+        <div style="background:#fff;border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(0,0,0,.05)">
+          <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);margin-bottom:14px">💰 Zeitkonto-Saldo je Mitarbeiter</div>
+          <div id="zkSaldoList"></div>
+        </div>
+      </div>
+      <!-- Einreichungen -->
+      <div class="adm-ph" style="margin-bottom:12px">
+        <h3 style="font-family:'Amiri',serif;font-size:1.2rem;color:var(--blue-dark)">Einreichungen diesen Monat</h3>
+      </div>
+      <div class="adm-table"><table>
+        <thead><tr><th>Mitarbeiter</th><th>Stunden</th><th>Stundenwert</th><th>Status</th><th>Eingereicht am</th><th>Aktionen</th></tr></thead>
+        <tbody id="dashEingereicht"><tr><td colspan="6" style="text-align:center;padding:28px;color:var(--text-muted)">Wird geladen…</td></tr></tbody>
+      </table></div>
+    </div>
+
+    <!-- MITARBEITER -->
+    <div class="adm-page" id="adm-mitarbeiter">
+      <div class="adm-ph">
+        <h2 class="adm-title">Mitarbeiter</h2>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <span id="maCount" style="font-size:.8rem;color:var(--text-muted)"></span>
+          <button class="btn-export" onclick="exportExcel()">📊 Excel Export</button>
+        </div>
+      </div>
+      <div class="adm-filterbar">
+        <input class="adm-search" id="maSearch" placeholder="🔍 Name, E-Mail …" oninput="renderMitarbeiter()"/>
+      </div>
+      <div class="adm-table"><table>
+        <thead><tr><th>Name</th><th>E-Mail</th><th>Adresse</th><th>IBAN</th><th>Einträge</th><th>Aktionen</th></tr></thead>
+        <tbody id="maTable"><tr><td colspan="6" style="text-align:center;padding:28px;color:var(--text-muted)">Wird geladen…</td></tr></tbody>
+      </table></div>
+    </div>
+
+    <!-- ZEITERFASSUNG -->
+    <div class="adm-page" id="adm-zeiterfassung">
+      <div class="adm-ph">
+        <h2 class="adm-title">Zeiterfassung</h2>
+        <div class="month-hdr">
+          <button class="month-btn" onclick="changeAdmMonth(-1)">&#8249;</button>
+          <div class="month-display" id="admMonthDisplay">–</div>
+          <button class="month-btn" onclick="changeAdmMonth(1)">&#8250;</button>
+        </div>
+      </div>
+      <div class="adm-filterbar">
+        <input class="adm-search" id="zeitSearch" placeholder="🔍 Name …" oninput="renderZeit()"/>
+        <select class="adm-sel" id="zeitSF" onchange="renderZeit()">
+          <option value="">Alle Status</option>
+          <option value="offen">Offen</option>
+          <option value="eingereicht">Eingereicht</option>
+          <option value="genehmigt">Genehmigt</option>
+          <option value="bezahlt">Bezahlt</option>
+        </select>
+      </div>
+      <div class="adm-table"><table>
+        <thead><tr><th>Mitarbeiter</th><th>Stunden</th><th>Auszahlung</th><th>Status</th><th>Eingereicht am</th><th>Aktionen</th></tr></thead>
+        <tbody id="zeitTable"><tr><td colspan="6" style="text-align:center;padding:28px;color:var(--text-muted)">Wird geladen…</td></tr></tbody>
+      </table></div>
+    </div>
+
+    <!-- ZEITKONTO -->
+    <div class="adm-page" id="adm-zeitkonto">
+      <div class="adm-ph">
+        <h2 class="adm-title">Zeitkonto-Übersicht</h2>
+        <button class="btn-export" onclick="exportZeitkonto()">📊 Excel Export</button>
+      </div>
+      <p style="font-size:.82rem;color:var(--text-muted);margin-bottom:16px">Kumulierter Zeitkonto-Saldo aller Mitarbeiter aus allen abgerechneten Monaten.</p>
+      <div class="adm-table"><table>
+        <thead><tr><th>Mitarbeiter</th><th>Monate</th><th>Ges. Stunden</th><th>Ges. Stundenwert</th><th>Ges. Auszahlung</th><th style="text-align:right">Zeitkonto-Saldo</th></tr></thead>
+        <tbody id="zeitkontoTable"><tr><td colspan="6" style="text-align:center;padding:28px;color:var(--text-muted)">Wird geladen…</td></tr></tbody>
+      </table></div>
+    </div>
+
+    <!-- ABRECHNUNG -->
+    <div class="adm-page" id="adm-abrechnung">
+      <div class="adm-ph no-print">
+        <h2 class="adm-title">Abrechnung</h2>
+      </div>
+      <div class="adm-filterbar no-print" style="margin-bottom:16px;flex-wrap:wrap;gap:10px">
+        <select class="adm-sel" id="abrMA" onchange="loadAbrEntry()" style="min-width:220px">
+          <option value="">– Mitarbeiter wählen –</option>
+        </select>
+        <div class="month-hdr" style="margin-bottom:0">
+          <button class="month-btn" onclick="changeAbrMonth(-1)">&#8249;</button>
+          <div class="month-display" id="abrMonthDisplay">–</div>
+          <button class="month-btn" onclick="changeAbrMonth(1)">&#8250;</button>
+        </div>
+        <button class="btn btn-dark no-print" onclick="printAbrechnung()">🖨️ Drucken</button>
+        <button class="btn btn-blue no-print" onclick="downloadPDF()">⬇️ PDF</button>
+        <button class="btn btn-gold no-print" onclick="sendAbrEmail()">📧 E-Mail senden</button>
+      </div>
+      <div id="abrContent"><div style="text-align:center;padding:48px;color:var(--text-muted)">Bitte Mitarbeiter und Monat wählen.</div></div>
+    </div>
+
+    <!-- EINSTELLUNGEN -->
+    <div class="adm-page" id="adm-einstellungen">
+      <div class="adm-ph"><h2 class="adm-title">Einstellungen</h2></div>
+
+      <!-- EmailJS -->
+      <div style="background:#fff;padding:26px;border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.05);max-width:520px;margin-bottom:16px">
+        <h3 style="font-family:'Amiri',serif;font-size:1.2rem;color:var(--blue-dark);margin-bottom:8px">📧 EmailJS-Konfiguration</h3>
+        <p style="font-size:.78rem;color:var(--text-muted);margin-bottom:18px;line-height:1.7">Keys werden in Firestore gespeichert und beim Versand automatisch abgerufen.</p>
+        <div class="adm-fg"><label>Public Key</label><input id="ejsPublic" placeholder="z.B. reaI6cfXJUE1ZKfY8"/></div>
+        <div class="adm-fg"><label>Service ID</label><input id="ejsService" placeholder="z.B. service_b6lzcub"/></div>
+        <div class="adm-fg"><label>Template ID – Lohnabrechnung</label><input id="ejsZeitTpl" placeholder="z.B. template_abrechnung"/></div>
+        <div class="adm-msg" id="ejsMsg"></div>
+        <button class="btn btn-blue" style="margin-top:10px" onclick="saveEJS()">💾 Speichern</button>
+      </div>
+
+      <!-- Push Notifications -->
+      <div style="background:#fff;padding:26px;border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.05);max-width:520px">
+        <h3 style="font-family:'Amiri',serif;font-size:1.2rem;color:var(--blue-dark);margin-bottom:8px">🔔 Push-Benachrichtigungen</h3>
+        <p style="font-size:.78rem;color:var(--text-muted);margin-bottom:6px;line-height:1.7">Aktiviere Push um Mitarbeiter automatisch bei Genehmigung zu benachrichtigen.</p>
+        <div id="pushStatus" style="font-size:.8rem;color:var(--text-muted);margin-bottom:14px;padding:8px 12px;background:var(--cream);border-radius:8px">Wird geladen…</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-blue" id="pushToggleBtn" onclick="togglePush()">🔔 Push aktivieren</button>
+          <button class="btn btn-ghost" onclick="sendTestPush()">📨 Test-Nachricht</button>
+        </div>
+        <div style="margin-top:16px;padding:12px 14px;background:var(--sand);border-radius:8px;font-size:.75rem;color:var(--text-muted);line-height:1.8">
+          <strong>Hinweis:</strong> Für Push an Mitarbeiter-Geräte wird der Push-Server (<code>server.js</code>) benötigt. Lokal: <code>http://localhost:3001</code>. Online: Render.com-URL in <code>PUSH_SERVER</code> eintragen.
+        </div>
+      </div>
+
+      <!-- Push Nachricht schreiben -->
+      <div style="background:#fff;padding:26px;border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.05);max-width:520px;margin-top:16px">
+        <h3 style="font-family:'Amiri',serif;font-size:1.2rem;color:var(--blue-dark);margin-bottom:8px">✍️ Nachricht verfassen & senden</h3>
+        <p style="font-size:.78rem;color:var(--text-muted);margin-bottom:16px;line-height:1.7">Schreibe eine Push-Nachricht und sende sie an alle oder einen bestimmten Mitarbeiter.</p>
+        <div class="adm-fg">
+          <label>Empfänger</label>
+          <select id="pushRecipient">
+            <option value="all">📢 Alle Mitarbeiter</option>
+          </select>
+        </div>
+        <div class="adm-fg">
+          <label>Titel</label>
+          <input id="pushTitle" placeholder="z.B. Wichtige Mitteilung" maxlength="60"/>
+        </div>
+        <div class="adm-fg">
+          <label>Nachricht</label>
+          <textarea id="pushBody" rows="3" style="resize:vertical" placeholder="Deine Nachricht hier…" maxlength="200"></textarea>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;margin-bottom:12px">
+          <span id="pushCharCount" style="font-size:.72rem;color:var(--text-muted)">0 / 200</span>
+        </div>
+        <div class="adm-msg" id="pushSendMsg"></div>
+        <button class="btn btn-blue" style="width:100%" onclick="sendCustomPush()">📤 Push senden</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL: Zeiterfassung bearbeiten -->
+<div class="adm-modal" id="zeitModal">
+  <div class="adm-mbox">
+    <button onclick="closeZeitModal()" style="position:absolute;top:14px;right:16px;background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--text-muted)">✕</button>
+    <h3 id="zeitModalTitle">Zeiterfassung bearbeiten</h3>
+    <input type="hidden" id="zmUID"/><input type="hidden" id="zmMonat"/>
+    <div id="zmInfo" style="background:var(--cream);padding:12px 14px;margin-bottom:14px;font-size:.82rem;line-height:1.9;border-left:3px solid var(--gold);border-radius:0 8px 8px 0"></div>
+    <div id="zmDayTable"></div>
+    <div class="total-row">
+      <div class="total-item"><div class="total-lbl">Stunden gesamt</div><div class="total-val" id="zmTotalH">–</div></div>
+      <div class="total-item"><div class="total-lbl">Auszahlung (fest)</div><div class="total-val green">170,00 €</div></div>
+    </div>
+    <div class="adm-fg" style="margin-top:12px">
+      <label>Status</label>
+      <select id="zmStatus">
+        <option value="offen">Offen</option>
+        <option value="eingereicht">Eingereicht</option>
+        <option value="genehmigt">Genehmigt</option>
+        <option value="bezahlt">Bezahlt</option>
+      </select>
+    </div>
+    <div class="adm-fg"><label>Interne Notiz</label><textarea id="zmNotiz" rows="2" style="resize:none" placeholder="Interne Notiz…"></textarea></div>
+    <div class="adm-msg" id="zmMsg"></div>
+    <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+      <button class="btn btn-dark" style="flex:1" onclick="saveZeitEntry()">💾 Speichern</button>
+      <button class="btn btn-ghost" style="flex:1" onclick="closeZeitModal()">Abbrechen</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Mitarbeiter Details -->
+<div class="adm-modal" id="maModal">
+  <div class="adm-mbox">
+    <button onclick="document.getElementById('maModal').classList.remove('on')" style="position:absolute;top:14px;right:16px;background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--text-muted)">✕</button>
+    <h3 id="maModalName">Mitarbeiter</h3>
+    <div id="maModalInfo"></div>
+    <div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap">
+      <button class="btn btn-blue" onclick="openAbrFuerMA()">📄 Abrechnung</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('maModal').classList.remove('on')">Schließen</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="adm-modal" id="confirmModal">
+  <div class="confirm-box">
+    <h4 id="confirmTitle">Löschen?</h4>
+    <p id="confirmText">Bist du sicher?</p>
+    <div class="confirm-btns">
+      <button class="btn btn-red" id="confirmYes">🗑️ Ja, löschen</button>
+      <button class="btn btn-ghost" onclick="closeConfirm()">Abbrechen</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var _auth=null,_db=null,_allMA=[],_allZeit=[],_ejsKeys={};
+var MONATE=['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+var WOTAGE=['So','Mo','Di','Mi','Do','Fr','Sa'];
+var STUNDENSATZ=13,MONATSPAUSCHALE=170;
+var _admYear=new Date().getFullYear(),_admMonth=new Date().getMonth()+1;
+var _abrYear=new Date().getFullYear(),_abrMonth=new Date().getMonth()+1;
+var _loginFails=0,_loginLocked=false,_confirmCb=null;
+
+function ls(src,cb){var s=document.createElement('script');s.src=src;s.async=true;s.onload=cb||function(){};s.onerror=function(){if(cb)cb();};document.body.appendChild(s);}
+
+if(typeof firebase!=='undefined'){initFB();}else{window.addEventListener('load',initFB);}
+
+function initFB(){
+  if(typeof firebase==='undefined')return;
+  var app=firebase.initializeApp({
+    apiKey:'AIzaSyDAm7rFPC2bo7cy5q857WmTtxp8B2jT3qQ',
+    authDomain:'madrassa-87a27.firebaseapp.com',
+    projectId:'madrassa-87a27',
+    storageBucket:'madrassa-87a27.firebasestorage.app',
+    messagingSenderId:'40031299980',
+    appId:'1:40031299980:web:350a1b901390ec9d710ea9'
+  },'zeitAdmin');
+  _auth=app.auth();_db=app.firestore();
+  _auth.onAuthStateChanged(function(u){u?checkAdmin(u):showLogin();});
+}
+
+/* AUTH */
+function checkAdmin(user){
+  _db.collection('admins').doc(user.uid).get().then(function(s){
+    if(s.exists&&s.data().role==='admin'){showApp(user);return;}
+    _db.collection('admins').limit(1).get().then(function(snap){
+      if(snap.empty){showSetupPrompt(user);}
+      else{_auth.signOut();showLogin('Kein Admin-Zugang.');}
+    }).catch(function(){_auth.signOut();showLogin('Firebase-Regeln prüfen.');});
+  }).catch(function(e){_auth.signOut();showLogin(e.code==='permission-denied'?'Zugriff verweigert.':'Verbindungsfehler.');});
+}
+
+function showSetupPrompt(user){
+  var err=document.getElementById('admLoginErr');
+  err.style.cssText='display:block;background:rgba(196,151,58,.1);color:#7a5c1a;border-left-color:var(--gold);border-radius:6px;padding:10px 12px;font-size:.79rem;margin-bottom:12px';
+  err.innerHTML='Erster Admin erkannt. <button onclick="setupFirstAdmin(\''+user.uid+'\')" style="margin-top:6px;display:block;background:var(--blue);color:#fff;border:none;border-radius:6px;padding:6px 14px;cursor:pointer;font-family:inherit;font-size:.8rem">Als Admin einrichten</button>';
+}
+function setupFirstAdmin(uid){
+  _db.collection('admins').doc(uid).set({role:'admin',email:_auth.currentUser.email,erstellt:firebase.firestore.FieldValue.serverTimestamp()})
+    .then(function(){showApp(_auth.currentUser);}).catch(function(e){showLogin('Setup fehlgeschlagen.');});
+}
+function showLogin(msg){
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('adminApp').style.display='none';
+  document.getElementById('admLoginBtn').disabled=false;document.getElementById('admLoginBtn').textContent='Anmelden';
+  if(msg){var err=document.getElementById('admLoginErr');err.style.display='block';err.textContent=msg;}
+}
+function showApp(user){
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('adminApp').style.display='block';
+  document.getElementById('admWelcome').textContent='Angemeldet als '+( user.email||'Admin');
+  renderAbrMonthDisplay();renderAdmMonthDisplay();loadAll();
+  setTimeout(initPush,1000);
+}
+function admLogin(){
+  if(_loginLocked){showToast('Zu viele Versuche.','err');return;}
+  var email=document.getElementById('admEmail').value.trim();
+  var pw=document.getElementById('admPw').value;
+  var err=document.getElementById('admLoginErr');var btn=document.getElementById('admLoginBtn');
+  err.style.display='none';
+  if(!email||!pw){err.style.display='block';err.textContent='Bitte alle Felder ausfüllen.';return;}
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span>Anmelden…';
+  _auth.signInWithEmailAndPassword(email,pw).catch(function(e){
+    _loginFails++;if(_loginFails>=5){_loginLocked=true;setTimeout(function(){_loginFails=0;_loginLocked=false;},60000);}
+    err.style.display='block';err.textContent=e.code==='auth/wrong-password'||e.code==='auth/invalid-credential'?'E-Mail oder Passwort falsch.':'Anmeldung fehlgeschlagen.';
+    btn.disabled=false;btn.textContent='Anmelden';
+  });
+}
+function admLogout(){if(_auth)_auth.signOut().then(function(){showLogin();});}
+
+function admShowPage(name,btn){
+  document.querySelectorAll('.adm-page').forEach(function(p){p.classList.remove('on');});
+  document.querySelectorAll('.adm-tab').forEach(function(t){t.classList.remove('on');});
+  document.getElementById('adm-'+name).classList.add('on');
+  if(btn)btn.classList.add('on');
+  if(name==='zeiterfassung')renderZeit();
+  if(name==='mitarbeiter')renderMitarbeiter();
+  if(name==='zeitkonto')loadZeitkontoAdmin();
+  if(name==='abrechnung')populateAbrSelect();
+  if(name==='einstellungen'){
+    loadEJS();
+    initPush();
+    populatePushRecipients();
+    // Zeichenzähler
+    var ta=document.getElementById('pushBody');
+    if(ta){ta.oninput=function(){document.getElementById('pushCharCount').textContent=ta.value.length+' / 200';};}
+  }
+}
+function mobNav(name,btn){
+  admShowPage(name,null);
+  document.querySelectorAll('.mob-nav-item').forEach(function(b){b.classList.remove('on');});
+  btn.classList.add('on');
+  window.scrollTo(0,0);
+}
+
+/* CONFIRM */
+function showConfirm(title,text,cb){
+  document.getElementById('confirmTitle').textContent=title;
+  document.getElementById('confirmText').textContent=text;
+  _confirmCb=cb;document.getElementById('confirmModal').classList.add('on');
+}
+function closeConfirm(){document.getElementById('confirmModal').classList.remove('on');_confirmCb=null;}
+document.addEventListener('DOMContentLoaded',function(){
+  document.getElementById('confirmYes').onclick=function(){if(_confirmCb)_confirmCb();closeConfirm();};
+});
+
+/* LOAD DATA */
+function loadAll(){loadMitarbeiter();loadZeiteintraege();loadEJSKeys();}
+function loadMitarbeiter(){
+  _db.collection('mitarbeiter').get().then(function(snap){
+    _allMA=[];snap.forEach(function(d){_allMA.push(Object.assign({id:d.id},d.data()));});
+    renderMitarbeiter();updateDashStats();
+  }).catch(function(){});
+}
+function loadZeiteintraege(){
+  _db.collection('zeiteintraege').get().then(function(snap){
+    _allZeit=[];snap.forEach(function(d){_allZeit.push(Object.assign({id:d.id},d.data()));});
+    updateDashStats();loadDashEingereicht();
+  }).catch(function(){});
+}
+function loadEJSKeys(){
+  _db.collection('settings').doc('emailjs').get().then(function(s){if(s.exists)_ejsKeys=s.data();}).catch(function(){});
+}
+
+/* DASHBOARD */
+function updateDashStats(){
+  document.getElementById('statMA').textContent=_allMA.length;
+  var curKey=admMonthKey(new Date().getFullYear(),new Date().getMonth()+1);
+  var curEntries=_allZeit.filter(function(e){return e.monat===curKey;});
+  var h=curEntries.reduce(function(a,e){return a+(e.gesamtstunden||0);},0);
+  var betrag=curEntries.reduce(function(a,e){return a+(e.gesamtstunden||0)*STUNDENSATZ;},0);
+  var offen=_allZeit.filter(function(e){return e.status==='offen'||e.status==='eingereicht';}).length;
+  document.getElementById('statMonatH').textContent=h.toFixed(1).replace('.',',')+' h';
+  document.getElementById('statOffenCount').textContent=offen;
+  document.getElementById('statMonatBetrag').textContent=fmtEur(betrag);
+  renderDashCharts();renderTopMA();renderZKSaldo();
+}
+function renderDashCharts(){
+  if(typeof Chart==='undefined')return;
+  var now=new Date();var labels=[],dataH=[],dataBetrag=[];
+  for(var i=11;i>=0;i--){
+    var d=new Date(now.getFullYear(),now.getMonth()-i,1);
+    var key=admMonthKey(d.getFullYear(),d.getMonth()+1);
+    var entries=_allZeit.filter(function(e){return e.monat===key;});
+    var h=entries.reduce(function(a,e){return a+(e.gesamtstunden||0);},0);
+    var betrag=entries.reduce(function(a,e){return a+(e.gesamtstunden||0)*STUNDENSATZ;},0);
+    labels.push(MONATE[d.getMonth()].slice(0,3));
+    dataH.push(parseFloat(h.toFixed(1)));
+    dataBetrag.push(parseFloat(betrag.toFixed(2)));
+  }
+  var ctx1=document.getElementById('chartStunden');
+  if(ctx1){
+    if(ctx1._chart)ctx1._chart.destroy();
+    ctx1._chart=new Chart(ctx1,{type:'bar',data:{labels:labels,datasets:[{label:'Stunden',data:dataH,backgroundColor:'rgba(44,82,130,.75)',borderRadius:5,borderSkipped:false}]},
+      options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{font:{size:10}}}},maintainAspectRatio:true}});
+  }
+  var ctx2=document.getElementById('chartAuszahlung');
+  if(ctx2){
+    if(ctx2._chart)ctx2._chart.destroy();
+    ctx2._chart=new Chart(ctx2,{type:'bar',data:{labels:labels,datasets:[{label:'Auszahlung (€)',data:dataBetrag,backgroundColor:'rgba(196,151,58,.75)',borderRadius:5,borderSkipped:false}]},
+      options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{font:{size:10},callback:function(v){return v+' €';}}}},maintainAspectRatio:true}});
+  }
+}
+function renderTopMA(){
+  var el=document.getElementById('topMAList');if(!el)return;
+  var byMA={};
+  _allZeit.forEach(function(e){if(!byMA[e.uid])byMA[e.uid]=0;byMA[e.uid]+=(e.gesamtstunden||0);});
+  var list=Object.keys(byMA).map(function(uid){
+    var ma=_allMA.find(function(m){return m.id===uid;})||{};
+    return{nm:((ma.vorname||'')+' '+(ma.nachname||'')).trim()||uid,h:byMA[uid]};
+  }).sort(function(a,b){return b.h-a.h;}).slice(0,5);
+  var max=list.length?list[0].h:1;
+  el.innerHTML=list.length?list.map(function(x,i){
+    var pct=Math.round((x.h/max)*100);
+    var medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'   ';
+    return '<div style="margin-bottom:10px">'+
+      '<div style="display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:3px"><span>'+medal+' <strong>'+x.nm+'</strong></span><span style="color:var(--text-muted)">'+x.h.toFixed(1).replace('.',',')+' h</span></div>'+
+      '<div style="background:var(--sand);border-radius:4px;height:6px"><div style="background:var(--blue);width:'+pct+'%;height:6px;border-radius:4px"></div></div></div>';
+  }).join(''):'<div style="color:var(--text-muted);padding:12px 0;font-size:.82rem">Keine Daten.</div>';
+}
+function renderZKSaldo(){
+  var el=document.getElementById('zkSaldoList');if(!el)return;
+  var byMA={};
+  _allZeit.forEach(function(e){
+    if(!byMA[e.uid])byMA[e.uid]=0;
+    byMA[e.uid]+=(e.differenz||((e.gesamtstunden||0)*STUNDENSATZ-MONATSPAUSCHALE));
+  });
+  var list=Object.keys(byMA).map(function(uid){
+    var ma=_allMA.find(function(m){return m.id===uid;})||{};
+    return{nm:((ma.vorname||'')+' '+(ma.nachname||'')).trim()||uid,saldo:byMA[uid]};
+  }).sort(function(a,b){return b.saldo-a.saldo;});
+  el.innerHTML=list.length?list.map(function(x){
+    var col=x.saldo>0?'var(--green)':x.saldo<0?'var(--error)':'var(--text-muted)';
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--sand)">'+
+      '<span style="font-size:.83rem">'+x.nm+'</span>'+
+      '<span style="font-weight:700;font-size:.83rem;color:'+col+'">'+(x.saldo>0?'+':'')+fmtEur(x.saldo)+'</span></div>';
+  }).join(''):'<div style="color:var(--text-muted);padding:12px 0;font-size:.82rem">Keine Daten.</div>';
+}
+function loadDashEingereicht(){
+  var curKey=admMonthKey(new Date().getFullYear(),new Date().getMonth()+1);
+  var entries=_allZeit.filter(function(e){return e.monat===curKey;});
+  entries.sort(function(a,b){return ((b.eingereichtAm&&b.eingereichtAm.seconds)||0)-((a.eingereichtAm&&a.eingereichtAm.seconds)||0);});
+  var bc={offen:'bg-sand',eingereicht:'bg-gold',genehmigt:'bg-green',bezahlt:'bg-blue'};
+  var lb={offen:'Offen',eingereicht:'Eingereicht',genehmigt:'Genehmigt',bezahlt:'Bezahlt'};
+  var tb=document.getElementById('dashEingereicht');
+  if(!entries.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;padding:28px;color:var(--text-muted)">Keine Einträge diesen Monat.</td></tr>';return;}
+  tb.innerHTML=entries.map(function(e){
+    var ma=_allMA.find(function(m){return m.id===e.uid;})||{};
+    var nm=((ma.vorname||'')+' '+(ma.nachname||'')).trim();
+    var einAm=e.eingereichtAm?new Date(e.eingereichtAm.seconds*1000).toLocaleDateString('de-DE'):'-';
+    return '<tr><td><strong>'+nm+'</strong></td>'+
+      '<td>'+((e.gesamtstunden||0).toFixed(1).replace('.',','))+' h</td>'+
+      '<td><strong>'+fmtEur((e.gesamtstunden||0)*STUNDENSATZ)+'</strong></td>'+
+      '<td><span class="adm-badge '+(bc[e.status]||'bg-sand')+'">'+(lb[e.status]||e.status)+'</span></td>'+
+      '<td>'+einAm+'</td>'+
+      '<td style="display:flex;gap:5px">'+
+      '<button class="btn btn-blue btn-sm" onclick=\'openZeitModal("'+e.uid+'","'+e.monat+'")\'>✏️</button>'+
+      '<button class="btn btn-red btn-sm" onclick=\'confirmDeleteZeit("'+e.uid+'","'+e.monat+'","'+nm+'")\'>🗑️</button>'+
+      '</td></tr>';
+  }).join('');
+}
+
+/* MITARBEITER */
+function renderMitarbeiter(){
+  var q=(document.getElementById('maSearch')||{}).value||'';q=q.toLowerCase();
+  var list=_allMA.filter(function(m){return !q||((m.vorname||'')+(m.nachname||'')+(m.email||'')).toLowerCase().includes(q);});
+  document.getElementById('maCount').textContent=list.length+' Mitarbeiter';
+  document.getElementById('maTable').innerHTML=list.length?list.map(function(m){
+    var adr=[(m.adresse_strasse||''),(m.adresse_hausnr||''),(m.adresse_plz||''),(m.adresse_stadt||'')].filter(Boolean).join(' ');
+    var iban=m.bank_iban?m.bank_iban.replace(/\s/g,'').slice(0,4)+'···'+m.bank_iban.replace(/\s/g,'').slice(-4):'-';
+    var nm=((m.vorname||'')+' '+(m.nachname||'')).trim();
+    var eCount=_allZeit.filter(function(e){return e.uid===m.id;}).length;
+    return '<tr><td><strong>'+nm+'</strong></td><td style="color:var(--text-muted)">'+( m.email||'–')+'</td><td style="font-size:.76rem">'+( adr||'–')+'</td><td style="font-family:monospace;font-size:.76rem">'+iban+'</td><td>'+eCount+'</td>'+
+      '<td style="display:flex;gap:5px">'+
+      '<button class="btn btn-blue btn-sm" onclick=\'openMAModal("'+m.id+'")\'>Details</button>'+
+      '<button class="btn btn-red btn-sm" onclick=\'confirmDeleteMA("'+m.id+'","'+nm+'")\'>🗑️</button>'+
+      '</td></tr>';
+  }).join(''):'<tr><td colspan="6" style="text-align:center;padding:22px;color:var(--text-muted)">Keine Mitarbeiter gefunden.</td></tr>';
+}
+
+/* ZEITERFASSUNG */
+function admMonthKey(y,m){return y+'-'+(m<10?'0':'')+m;}
+function renderAdmMonthDisplay(){document.getElementById('admMonthDisplay').textContent=MONATE[_admMonth-1]+' '+_admYear;}
+function changeAdmMonth(d){_admMonth+=d;if(_admMonth>12){_admMonth=1;_admYear++;}if(_admMonth<1){_admMonth=12;_admYear--;}renderAdmMonthDisplay();renderZeit();}
+
+function renderZeit(){
+  var key=admMonthKey(_admYear,_admMonth);
+  var q=(document.getElementById('zeitSearch')||{}).value||'';q=q.toLowerCase();
+  var sf=(document.getElementById('zeitSF')||{}).value||'';
+  var entries=_allZeit.filter(function(e){return e.monat===key;});
+  if(sf)entries=entries.filter(function(e){return e.status===sf;});
+  if(q)entries=entries.filter(function(e){var ma=_allMA.find(function(m){return m.id===e.uid;})||{};return ((ma.vorname||'')+(ma.nachname||'')).toLowerCase().includes(q);});
+  var badge_classes={offen:'bg-sand',eingereicht:'bg-gold',genehmigt:'bg-green',bezahlt:'bg-blue'};
+  var labels={offen:'Offen',eingereicht:'Eingereicht',genehmigt:'Genehmigt',bezahlt:'Bezahlt'};
+  document.getElementById('zeitTable').innerHTML=entries.length?entries.map(function(e){
+    var ma=_allMA.find(function(m){return m.id===e.uid;})||{};
+    var nm=((ma.vorname||'')+' '+(ma.nachname||'')).trim();
+    var einAm=e.eingereichtAm?new Date(e.eingereichtAm.seconds*1000).toLocaleDateString('de-DE'):'-';
+    return '<tr><td><strong>'+nm+'</strong></td><td>'+((e.gesamtstunden||0).toFixed(1).replace('.',','))+' h</td>'+
+      '<td><strong>'+fmtEur((e.gesamtstunden||0)*STUNDENSATZ)+'</strong></td>'+
+      '<td><span class="adm-badge '+(badge_classes[e.status]||'bg-sand')+'">'+( labels[e.status]||e.status)+'</span></td>'+
+      '<td>'+einAm+'</td><td style="display:flex;gap:5px;flex-wrap:wrap">'+
+      '<button class="btn btn-blue btn-sm" onclick=\'openZeitModal("'+e.uid+'","'+e.monat+'")\'>✏️ Bearbeiten</button>'+
+      '<button class="btn btn-red btn-sm" onclick=\'confirmDeleteZeit("'+e.uid+'","'+e.monat+'","'+nm+'")\'>🗑️ Löschen</button>'+
+      '</td></tr>';
+  }).join(''):'<tr><td colspan="6" style="text-align:center;padding:22px;color:var(--text-muted)">Keine Einträge für diesen Monat.</td></tr>';
+}
+
+/* DELETE */
+function confirmDeleteZeit(uid,monat,nm){
+  showConfirm('Eintrag löschen?',
+    'Zeiterfassung von "'+nm+'" für '+monthLabel(monat)+' wirklich aus Firebase löschen? Diese Aktion kann nicht rückgängig gemacht werden.',
+    function(){
+      _db.collection('zeiteintraege').doc(uid+'_'+monat).delete().then(function(){
+        _allZeit=_allZeit.filter(function(e){return !(e.uid===uid&&e.monat===monat);});
+        renderZeit();loadDashEingereicht();updateDashStats();
+        showToast('🗑️ Eintrag gelöscht.','ok');
+      }).catch(function(e){showToast('Fehler: '+e.message,'err');});
+    });
+}
+function confirmDeleteMA(id,nm){
+  showConfirm('Mitarbeiter löschen?',
+    '"'+nm+'" und alle zugehörigen Zeiteinträge wirklich aus Firebase löschen? Diese Aktion kann nicht rückgängig gemacht werden.',
+    function(){
+      var batch=_db.batch();
+      _allZeit.filter(function(e){return e.uid===id;}).forEach(function(e){
+        batch.delete(_db.collection('zeiteintraege').doc(id+'_'+e.monat));
+      });
+      batch.delete(_db.collection('mitarbeiter').doc(id));
+      batch.commit().then(function(){
+        _allMA=_allMA.filter(function(m){return m.id!==id;});
+        _allZeit=_allZeit.filter(function(e){return e.uid!==id;});
+        renderMitarbeiter();loadDashEingereicht();updateDashStats();
+        document.getElementById('maModal').classList.remove('on');
+        showToast('🗑️ Mitarbeiter gelöscht.','ok');
+      }).catch(function(e){showToast('Fehler: '+e.message,'err');});
+    });
+}
+
+/* ZEIT MODAL */
+function openZeitModal(uid,monat){
+  document.getElementById('zmUID').value=uid;document.getElementById('zmMonat').value=monat;
+  var ma=_allMA.find(function(m){return m.id===uid;})||{};
+  var e=_allZeit.find(function(x){return x.uid===uid&&x.monat===monat;})||{tage:{},status:'offen'};
+  var nm=((ma.vorname||'')+' '+(ma.nachname||'')).trim();
+  document.getElementById('zeitModalTitle').textContent=nm+' – '+monthLabel(monat);
+  document.getElementById('zmInfo').innerHTML='<strong>'+nm+'</strong> · '+(ma.email||'')+'<br/>Monat: <strong>'+monthLabel(monat)+'</strong> · Auszahlung: <strong>170,00 € (fest)</strong>';
+  document.getElementById('zmStatus').value=e.status||'offen';
+  document.getElementById('zmNotiz').value=e.notiz||'';
+  buildZMDayTable(monat,e.tage||{});calcZMTotal();
+  document.getElementById('zmMsg').className='adm-msg';
+  document.getElementById('zeitModal').classList.add('on');
+}
+function buildZMDayTable(monat,tage){
+  var parts=monat.split('-');var y=parseInt(parts[0]),m=parseInt(parts[1]);
+  var days=new Date(y,m,0).getDate();var rows='';
+  for(var d=1;d<=days;d++){
+    var dt=new Date(y,m-1,d);var dow=dt.getDay();var isWE=(dow===0||dow===6);
+    var h=tage[String(d)]||0;
+    rows+='<tr class="'+(isWE?'weekend':'')+'"><td>'+WOTAGE[dow]+'</td><td>'+d+'. '+MONATE[m-1].slice(0,3)+'.</td>'+
+      '<td><input class="h-edit" type="number" id="zm-'+d+'" value="'+h+'" min="0" max="12" step="0.5" onchange="calcZMTotal()"/></td></tr>';
+  }
+  document.getElementById('zmDayTable').innerHTML='<table class="day-table"><thead><tr><th>Tag</th><th>Datum</th><th>Stunden</th></tr></thead><tbody>'+rows+'</tbody></table>';
+}
+function calcZMTotal(){
+  var monat=document.getElementById('zmMonat').value;if(!monat)return;
+  var parts=monat.split('-');var y=parseInt(parts[0]),m=parseInt(parts[1]);
+  var days=new Date(y,m,0).getDate();var total=0;
+  for(var d=1;d<=days;d++){var inp=document.getElementById('zm-'+d);if(inp)total+=parseFloat(inp.value)||0;}
+  document.getElementById('zmTotalH').textContent=total.toFixed(1).replace('.',',')+' h';
+}
+function saveZeitEntry(){
+  var uid=document.getElementById('zmUID').value;var monat=document.getElementById('zmMonat').value;
+  var parts=monat.split('-');var y=parseInt(parts[0]),m=parseInt(parts[1]);
+  var days=new Date(y,m,0).getDate();var tage={};var total=0;
+  for(var d=1;d<=days;d++){var inp=document.getElementById('zm-'+d);var h=parseFloat(inp?inp.value:0)||0;if(h>0){tage[String(d)]=h;total+=h;}}
+  var status=document.getElementById('zmStatus').value;
+  var notiz=document.getElementById('zmNotiz').value.trim();
+  var diff=(total*STUNDENSATZ)-MONATSPAUSCHALE;
+  var data={uid:uid,monat:monat,tage:tage,gesamtstunden:total,stundenwert:total*STUNDENSATZ,gesamtbetrag:MONATSPAUSCHALE,differenz:diff,status:status,notiz:notiz,aktualisiert:firebase.firestore.FieldValue.serverTimestamp()};
+  _db.collection('zeiteintraege').doc(uid+'_'+monat).set(data,{merge:true}).then(function(){
+    var idx=_allZeit.findIndex(function(e){return e.uid===uid&&e.monat===monat;});
+    if(idx>-1)_allZeit[idx]=Object.assign(_allZeit[idx],data);else _allZeit.push(Object.assign({},data));
+    document.getElementById('zmMsg').className='adm-msg ok';document.getElementById('zmMsg').textContent='✅ Gespeichert!';
+    renderZeit();updateDashStats();showToast('Gespeichert.','ok');
+    // Auto-Push wenn genehmigt oder bezahlt
+    if(status==='genehmigt'||status==='bezahlt'){
+      var ma=_allMA.find(function(m){return m.id===uid;})||{};
+      var nm=((ma.vorname||'')+' '+(ma.nachname||'')).trim();
+      var monLabel=MONATE[m-1]+' '+y;
+      var pushBody=status==='genehmigt'
+        ?'Hallo '+nm+', deine Abrechnung für '+monLabel+' wurde genehmigt! ✅'
+        :'Hallo '+nm+', deine Abrechnung für '+monLabel+' wurde bezahlt! 💶';
+      fetch(PUSH_SERVER+'/push/one',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({uid:uid,title:'Madrassa Hannover',body:pushBody})
+      }).then(function(r){return r.json();}).then(function(r){
+        if(r&&r.gesendet)showToast('📨 Push an '+nm+' gesendet!','ok');
+      }).catch(function(){/* Server nicht erreichbar */});
+    }
+  }).catch(function(e){document.getElementById('zmMsg').className='adm-msg err';document.getElementById('zmMsg').textContent='Fehler: '+e.message;});
+}
+function closeZeitModal(){document.getElementById('zeitModal').classList.remove('on');}
+
+/* MA MODAL */
+function openMAModal(uid){
+  var ma=_allMA.find(function(m){return m.id===uid;});if(!ma)return;
+  var nm=((ma.vorname||'')+' '+(ma.nachname||'')).trim();
+  document.getElementById('maModalName').textContent=nm;
+  document.getElementById('maModal').dataset.uid=uid;
+  var entries=_allZeit.filter(function(e){return e.uid===uid;});
+  var totalH=entries.reduce(function(a,e){return a+(e.gesamtstunden||0);},0);
+  var fields=[['Vorname',ma.vorname],['Nachname',ma.nachname],['E-Mail',ma.email],['Geb.',ma.geburtsdatum],['Telefon',ma.telefon],
+    ['Adresse',[(ma.adresse_strasse||''),(ma.adresse_hausnr||''),(ma.adresse_plz||''),(ma.adresse_stadt||'')].filter(Boolean).join(' ')],
+    ['IBAN',ma.bank_iban],['BIC',ma.bank_bic],['Bank',ma.bank_name]];
+  document.getElementById('maModalInfo').innerHTML=
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">'+
+    fields.map(function(f){return '<div style="padding:7px 0;border-bottom:1px solid var(--sand)"><div style="font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted)">'+f[0]+'</div><div style="font-weight:500;font-size:.85rem;margin-top:2px">'+(f[1]||'–')+'</div></div>';}).join('')+
+    '</div>'+
+    '<div style="background:var(--cream);padding:12px 14px;border-radius:10px;border-left:3px solid var(--gold);font-size:.85rem">'+
+    entries.length+' Monate · <strong>'+totalH.toFixed(1).replace('.',',')+' h</strong> · <strong>'+fmtEur(entries.length*MONATSPAUSCHALE)+'</strong> ausgezahlt</div>'+
+    '<div style="margin-top:12px"><button class="btn btn-red btn-sm" onclick=\'confirmDeleteMA("'+uid+'","'+nm+'")\'>🗑️ Mitarbeiter löschen</button></div>';
+  document.getElementById('maModal').classList.add('on');
+}
+function openAbrFuerMA(){
+  var uid=document.getElementById('maModal').dataset.uid;
+  document.getElementById('maModal').classList.remove('on');
+  document.querySelectorAll('.adm-tab').forEach(function(t){t.classList.remove('on');});
+  document.querySelectorAll('.adm-tab')[4].classList.add('on');
+  admShowPage('abrechnung',null);
+  populateAbrSelect();
+  setTimeout(function(){document.getElementById('abrMA').value=uid;loadAbrEntry();},200);
+}
+
+/* ABRECHNUNG */
+function renderAbrMonthDisplay(){document.getElementById('abrMonthDisplay').textContent=MONATE[_abrMonth-1]+' '+_abrYear;}
+function changeAbrMonth(d){_abrMonth+=d;if(_abrMonth>12){_abrMonth=1;_abrYear++;}if(_abrMonth<1){_abrMonth=12;_abrYear--;}renderAbrMonthDisplay();loadAbrEntry();}
+function populateAbrSelect(){
+  var sel=document.getElementById('abrMA');var cur=sel.value;
+  sel.innerHTML='<option value="">– Mitarbeiter wählen –</option>';
+  _allMA.forEach(function(m){var opt=document.createElement('option');opt.value=m.id;opt.textContent=((m.vorname||'')+' '+(m.nachname||'')).trim()+' ('+(m.email||'')+')';sel.appendChild(opt);});
+  if(cur)sel.value=cur;
+}
+
+function loadAbrEntry(){
+  var uid=document.getElementById('abrMA').value;
+  var monat=admMonthKey(_abrYear,_abrMonth);
+  var c=document.getElementById('abrContent');
+  if(!uid){c.innerHTML='<div style="text-align:center;padding:48px;color:var(--text-muted)">Bitte Mitarbeiter und Monat wählen.</div>';return;}
+  var ma=_allMA.find(function(m){return m.id===uid;})||{};
+  var e=_allZeit.find(function(x){return x.uid===uid&&x.monat===monat;})||{tage:{},status:'offen',gesamtstunden:0};
+  var parts=monat.split('-');var y=parseInt(parts[0]),m=parseInt(parts[1]);
+  var days=new Date(y,m,0).getDate();
+  var dayRows='';
+  for(var d=1;d<=days;d++){
+    var dt=new Date(y,m-1,d);var dow=dt.getDay();var isWE=(dow===0||dow===6);
+    var h=parseFloat((e.tage||{})[String(d)])||0;
+    if(h>0){
+      dayRows+='<tr class="'+(isWE?'weekend':'')+'">'+
+        '<td>'+(d+'. '+MONATE[m-1].slice(0,3)+'.')+'</td><td>'+WOTAGE[dow]+'</td>'+
+        '<td>'+h.toFixed(1).replace('.',',')+' h</td>'+
+        '<td>'+fmtEur(h*STUNDENSATZ)+'</td></tr>';
+    }
+  }
+  var total=e.gesamtstunden||0;
+  var stundenwert=total*STUNDENSATZ;
+  var diff=e.differenz||(stundenwert-MONATSPAUSCHALE);
+  var diffSign=diff>=0?'+':'';
+  var badge_classes={offen:'bg-sand',eingereicht:'bg-gold',genehmigt:'bg-green',bezahlt:'bg-blue'};
+  var labels={offen:'Offen',eingereicht:'Eingereicht',genehmigt:'Genehmigt',bezahlt:'Bezahlt'};
+  var nm=((ma.vorname||'')+' '+(ma.nachname||'')).trim();
+  var adr=[(ma.adresse_strasse||''),(ma.adresse_hausnr||'')].filter(Boolean).join(' ');
+  var plzStadt=[(ma.adresse_plz||''),(ma.adresse_stadt||'')].filter(Boolean).join(' ');
+
+  c.innerHTML='<div class="print-card" id="printArea">'+
+    '<div class="print-header">'+
+      '<div class="print-logo-wrap">'+
+        '<img src="images/logo.PNG" onerror="this.onerror=null;this.src=\'https://ui-avatars.com/api/?name=M&background=2c5282&color=fff&size=60&bold=true&rounded=true\'" alt="Logo"/>'+
+        '<div><div class="print-org">Lohnabrechnung</div><div class="print-org-sub">Madrassa Hannover e.V.</div></div>'+
+      '</div>'+
+      '<div class="print-period">'+
+        '<div class="print-period-lbl">Abrechnungszeitraum</div>'+
+        '<div class="print-period-val">'+monthLabel(monat)+'</div>'+
+        '<span class="adm-badge '+(badge_classes[e.status]||'bg-sand')+'" style="margin-top:8px;display:inline-block">'+( labels[e.status]||'–')+'</span>'+
+      '</div>'+
+    '</div>'+
+
+    '<div class="print-info-grid">'+
+      '<div><div class="print-sec-lbl">Mitarbeiter</div><div class="print-info-text">'+
+        '<strong>'+nm+'</strong><br/>'+(adr?adr+'<br/>':'')+(plzStadt?plzStadt+'<br/>':'')+(ma.email||'')+(ma.geburtsdatum?'<br/>Geb.: '+ma.geburtsdatum:'')+
+      '</div></div>'+
+      '<div><div class="print-sec-lbl">Bankverbindung</div><div class="print-info-text">'+
+        (ma.bank_inhaber?'<strong>'+ma.bank_inhaber+'</strong><br/>':'')+'IBAN: <span style="font-family:monospace">'+(ma.bank_iban||'–')+'</span><br/>BIC: '+(ma.bank_bic||'–')+(ma.bank_name?'<br/>'+ma.bank_name:'')+
+      '</div></div>'+
+    '</div>'+
+
+    '<table class="print-table">'+
+      '<thead><tr><th>Datum</th><th>Tag</th><th>Stunden</th><th>Stundenwert</th></tr></thead>'+
+      '<tbody>'+dayRows+'</tbody>'+
+      '<tfoot><tr><td colspan="2"><strong>Gesamt</strong></td><td><strong>'+total.toFixed(1).replace('.',',')+' h</strong></td><td><strong>'+fmtEur(stundenwert)+'</strong></td></tr></tfoot>'+
+    '</table>'+
+
+    '<div class="print-summary">'+
+      '<div class="print-sum-row"><span>Stundenwert ('+total.toFixed(1)+' h × '+STUNDENSATZ+' €)</span><span>'+fmtEur(stundenwert)+'</span></div>'+
+      '<div class="print-sum-row"><span>Zeitkonto-Differenz</span><span style="color:'+(diff>=0?'var(--green)':'var(--error)')+'">'+diffSign+fmtEur(diff)+'</span></div>'+
+      '<div class="print-sum-row"><span>Monatspauschale (Auszahlung)</span><span>170,00 €</span></div>'+
+    '</div>'+
+
+    '<div class="print-footer">Erstellt am '+new Date().toLocaleDateString('de-DE')+' · Madrassa Hannover e.V. · Automatisch generierte Abrechnung</div>'+
+    '</div>';
+}
+
+/* PRINT */
+function printAbrechnung(){
+  if(!document.getElementById('abrMA').value){showToast('Bitte Mitarbeiter wählen','err');return;}
+  window.print();
+}
+
+/* PDF */
+function downloadPDF(){
+  if(!document.getElementById('abrMA').value){showToast('Bitte Mitarbeiter wählen','err');return;}
+  ls('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',function(){
+    ls('https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js',function(){
+      // Logo als Base64 laden
+      var img=new Image();img.crossOrigin='anonymous';
+      img.onload=function(){
+        var cv=document.createElement('canvas');cv.width=img.width;cv.height=img.height;
+        cv.getContext('2d').drawImage(img,0,0);
+        buildPDF(cv.toDataURL('image/png'));
+      };
+      img.onerror=function(){buildPDF(null);};
+      img.src='images/logo.PNG?_='+Date.now();
+    });
+  });
+}
+function buildPDF(logoDataUrl){
+  var uid=document.getElementById('abrMA').value;
+  var monat=admMonthKey(_abrYear,_abrMonth);
+  var ma=_allMA.find(function(m){return m.id===uid;})||{};
+  var e=_allZeit.find(function(x){return x.uid===uid&&x.monat===monat;})||{tage:{},gesamtstunden:0};
+  var parts=monat.split('-');var y=parseInt(parts[0]),m=parseInt(parts[1]);
+  var days=new Date(y,m,0).getDate();
+  var nm=((ma.vorname||'')+' '+(ma.nachname||'')).trim()||'Mitarbeiter';
+  var total=e.gesamtstunden||0;
+  var stundenwert=total*STUNDENSATZ;
+  var diff=e.differenz!==undefined?e.differenz:(stundenwert-MONATSPAUSCHALE);
+  var diffSign=diff>=0?'+':'';
+  var doc=new window.jspdf.jsPDF({orientation:'p',unit:'mm',format:'a4'});
+  var L=14,R=196,MID=110;
+
+  // ── HEADER: Logo + Titel links, Zeitraum rechts ──────────────
+  if(logoDataUrl){try{doc.addImage(logoDataUrl,'PNG',L,12,14,14);}catch(ex){}}
+  var tx=logoDataUrl?32:L;
+  doc.setTextColor(29,58,110);doc.setFont('helvetica','bold');doc.setFontSize(16);
+  doc.text('Lohnabrechnung',tx,20);
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(107,99,85);
+  doc.text('Madrassa Hannover e.V.',tx,26);
+
+  doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(107,99,85);
+  doc.text('ABRECHNUNGSZEITRAUM',R,16,{align:'right'});
+  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(29,58,110);
+  doc.text(MONATE[m-1]+' '+y,R,24,{align:'right'});
+
+  // Blaue Trennlinie unter Header
+  doc.setDrawColor(44,82,130);doc.setLineWidth(0.8);doc.line(L,32,R,32);
+
+  // ── INFO-GRID: Mitarbeiter | Bankverbindung ──────────────────
+  var gy=40;
+  // Linke Spalte
+  doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(107,99,85);
+  doc.text('MITARBEITER',L,gy);
+  doc.setDrawColor(212,201,176);doc.setLineWidth(0.3);doc.line(L,gy+1.5,MID-4,gy+1.5);
+  var ly=gy+7;
+  doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(26,26,26);
+  doc.text(nm,L,ly);
+  doc.setFont('helvetica','normal');doc.setFontSize(8.5);
+  var adr=[(ma.adresse_strasse||''),(ma.adresse_hausnr||'')].filter(Boolean).join(' ');
+  var plzStadt=[(ma.adresse_plz||''),(ma.adresse_stadt||'')].filter(Boolean).join(' ');
+  if(adr){ly+=5.5;doc.text(adr,L,ly);}
+  if(plzStadt){ly+=5.5;doc.text(plzStadt,L,ly);}
+  if(ma.email){ly+=5.5;doc.text(ma.email,L,ly);}
+  if(ma.geburtsdatum){ly+=5.5;doc.text('Geb.: '+ma.geburtsdatum,L,ly);}
+
+  // Rechte Spalte
+  doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(107,99,85);
+  doc.text('BANKVERBINDUNG',MID,gy);
+  doc.setDrawColor(212,201,176);doc.setLineWidth(0.3);doc.line(MID,gy+1.5,R,gy+1.5);
+  var ry=gy+7;
+  doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(26,26,26);
+  if(ma.bank_inhaber){doc.setFont('helvetica','bold');doc.text(ma.bank_inhaber,MID,ry);doc.setFont('helvetica','normal');ry+=5.5;}
+  doc.text('IBAN: '+(ma.bank_iban||'–'),MID,ry);ry+=5.5;
+  doc.text('BIC: '+(ma.bank_bic||'–'),MID,ry);ry+=5.5;
+  if(ma.bank_name)doc.text(ma.bank_name,MID,ry);
+
+  // ── TABELLE ──────────────────────────────────────────────────
+  var tableY=Math.max(ly,ry)+10;
+  var rows=[],rowMeta=[];
+  for(var d=1;d<=days;d++){
+    var dt=new Date(y,m-1,d);var dow=dt.getDay();
+    var h=parseFloat((e.tage||{})[String(d)])||0;
+    if(h>0){
+      rows.push([d+'. '+MONATE[m-1].slice(0,3)+'.',WOTAGE[dow],h.toFixed(1).replace('.',',')+' h',fmtEur(h*STUNDENSATZ)]);
+      rowMeta.push(dow===0||dow===6);
+    }
+  }
+  doc.autoTable({
+    startY:tableY,
+    head:[['Datum','Tag','Stunden','Stundenwert']],
+    body:rows,
+    foot:[['','Gesamt',total.toFixed(1).replace('.',',')+' h',fmtEur(stundenwert)]],
+    headStyles:{fillColor:[44,82,130],textColor:255,fontStyle:'bold',fontSize:8},
+    footStyles:{fillColor:[240,232,214],textColor:[29,58,110],fontStyle:'bold',fontSize:9,
+      lineWidth:{top:0.5},lineColor:[212,201,176]},
+    columnStyles:{0:{cellWidth:36},1:{cellWidth:24},2:{halign:'right'},3:{halign:'right'}},
+    bodyStyles:{lineColor:[240,232,214],lineWidth:0.25},
+    theme:'plain',
+    styles:{fontSize:9,cellPadding:{top:3,right:4,bottom:3,left:4}},
+    didParseCell:function(data){
+      if(data.section==='body'&&rowMeta[data.row.index]){
+        data.cell.styles.fillColor=[253,247,238];
+        data.cell.styles.textColor=[107,99,85];
+      }
+    }
+  });
+
+  // ── SUMMARY BOX ──────────────────────────────────────────────
+  var sy=doc.lastAutoTable.finalY+8;
+  var sx=L+4,ex=R-4,dc=diff>=0?[39,174,96]:[192,57,43];
+  // Cream-Box mit Sand-Rahmen
+  doc.setFillColor(250,246,239);doc.setDrawColor(212,201,176);doc.setLineWidth(0.3);
+  doc.roundedRect(L,sy,R-L,44,2,2,'FD');
+  // Zeile 1: Stundenwert
+  var r1=sy+9;
+  doc.setTextColor(26,26,26);doc.setFont('helvetica','normal');doc.setFontSize(9);
+  doc.text('Stundenwert ('+total.toFixed(1)+' h × '+STUNDENSATZ+' €)',sx,r1);
+  doc.text(fmtEur(stundenwert),ex,r1,{align:'right'});
+  doc.setDrawColor(212,201,176);doc.setLineWidth(0.2);doc.line(sx,r1+3,ex,r1+3);
+  // Zeile 2: Differenz
+  var r2=r1+10;
+  doc.setTextColor(26,26,26);doc.text('Zeitkonto-Differenz',sx,r2);
+  doc.setTextColor(dc[0],dc[1],dc[2]);doc.setFont('helvetica','bold');
+  doc.text(diffSign+fmtEur(diff),ex,r2,{align:'right'});
+  doc.setFont('helvetica','normal');doc.setTextColor(26,26,26);
+  doc.setDrawColor(212,201,176);doc.setLineWidth(0.2);doc.line(sx,r2+3,ex,r2+3);
+  // Zeile 3: Monatspauschale
+  var r3=r2+10;
+  doc.text('Monatspauschale (Auszahlung)',sx,r3);
+  doc.text('170,00 €',ex,r3,{align:'right'});
+  // Blaue Trennlinie + letzte Zeile fett
+  doc.setDrawColor(44,82,130);doc.setLineWidth(0.6);doc.line(sx,r3+4,ex,r3+4);
+  var r4=r3+11;
+  doc.setTextColor(29,58,110);doc.setFont('helvetica','bold');doc.setFontSize(10);
+  doc.text('Auszahlung',sx,r4);doc.text('170,00 €',ex,r4,{align:'right'});
+
+  // ── FOOTER ───────────────────────────────────────────────────
+  var fy=sy+50;
+  doc.setDrawColor(212,201,176);doc.setLineWidth(0.3);doc.line(L,fy,R,fy);
+  doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(107,99,85);
+  doc.text('Erstellt am '+new Date().toLocaleDateString('de-DE')+' · Madrassa Hannover e.V. · Automatisch generierte Abrechnung',(L+R)/2,fy+5,{align:'center'});
+
+  doc.save('Abrechnung_'+nm.replace(/\s/g,'_')+'_'+monat+'.pdf');
+  showToast('✅ PDF heruntergeladen!','ok');
+}
+
+/* EMAIL */
+function sendAbrEmail(){
+  var uid=document.getElementById('abrMA').value;
+  if(!uid){showToast('Bitte Mitarbeiter wählen','err');return;}
+  var monat=admMonthKey(_abrYear,_abrMonth);
+  var ma=_allMA.find(function(m){return m.id===uid;})||{};
+  var e=_allZeit.find(function(x){return x.uid===uid&&x.monat===monat;})||{};
+  if(!ma.email){showToast('Mitarbeiter hat keine E-Mail.','err');return;}
+  if(!_ejsKeys.serviceId||!_ejsKeys.publicKey||!_ejsKeys.zeitTpl){showToast('EmailJS nicht konfiguriert → Einstellungen','err');return;}
+  if(typeof emailjs==='undefined'){showToast('EmailJS nicht geladen.','err');return;}
+  try{emailjs.init(_ejsKeys.publicKey);}catch(x){}
+  var nm=((ma.vorname||'')+' '+(ma.nachname||'')).trim();
+  emailjs.send(_ejsKeys.serviceId,_ejsKeys.zeitTpl,{
+    to_email:ma.email,to_name:nm,mitarbeiter_name:nm,monat:monthLabel(monat),
+    stunden:((e.gesamtstunden||0).toFixed(1).replace('.',',')),betrag:'170,00 €',stundensatz:STUNDENSATZ+' €'
+  }).then(function(){showToast('📧 E-Mail gesendet!','ok');}).catch(function(){showToast('E-Mail Fehler','err');});
+}
+
+/* ZEITKONTO */
+function loadZeitkontoAdmin(){
+  var tb=document.getElementById('zeitkontoTable');
+  tb.innerHTML='<tr><td colspan="6" style="text-align:center;padding:28px;color:var(--text-muted)">Wird geladen…</td></tr>';
+  _db.collection('zeiteintraege').get().then(function(snap){
+    var byMA={};
+    snap.forEach(function(d){
+      var e=d.data();if(!byMA[e.uid])byMA[e.uid]={stunden:0,stundenwert:0,auszahlung:0,saldo:0,monate:0};
+      var diff=e.differenz||((e.gesamtstunden||0)*STUNDENSATZ-MONATSPAUSCHALE);
+      byMA[e.uid].stunden+=(e.gesamtstunden||0);
+      byMA[e.uid].stundenwert+=(e.stundenwert||(e.gesamtstunden||0)*STUNDENSATZ);
+      byMA[e.uid].auszahlung+=MONATSPAUSCHALE;byMA[e.uid].saldo+=diff;byMA[e.uid].monate++;
+    });
+    tb.innerHTML='';
+    if(!Object.keys(byMA).length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;padding:28px;color:var(--text-muted)">Keine Daten vorhanden.</td></tr>';return;}
+    Object.keys(byMA).forEach(function(uid){
+      var ma=_allMA.find(function(m){return m.id===uid;})||{};
+      var nm=((ma.vorname||'')+' '+(ma.nachname||'')).trim()||uid;
+      var z=byMA[uid];
+      var sc=z.saldo>0?'color:var(--green);font-weight:700':z.saldo<0?'color:var(--error);font-weight:700':'color:var(--text-muted)';
+      var tr=document.createElement('tr');
+      tr.innerHTML='<td><strong>'+nm+'</strong></td><td>'+z.monate+'</td>'+
+        '<td>'+z.stunden.toFixed(1).replace('.',',')+' h</td><td>'+fmtEur(z.stundenwert)+'</td>'+
+        '<td>'+fmtEur(z.auszahlung)+'</td>'+
+        '<td style="text-align:right;'+sc+'">'+(z.saldo>0?'+':'')+fmtEur(z.saldo)+'</td>';
+      tb.appendChild(tr);
+    });
+  }).catch(function(){tb.innerHTML='<tr><td colspan="6" style="text-align:center;padding:28px;color:var(--error)">Fehler beim Laden.</td></tr>';});
+}
+
+/* EXCEL */
+function exportExcel(){
+  ls('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',function(){
+    var rows=[['Name','E-Mail','Adresse','IBAN','BIC','Bank']];
+    _allMA.forEach(function(ma){
+      var adr=[(ma.adresse_strasse||''),(ma.adresse_hausnr||''),(ma.adresse_plz||''),(ma.adresse_stadt||'')].filter(Boolean).join(' ');
+      rows.push([((ma.vorname||'')+' '+(ma.nachname||'')).trim(),ma.email||'',adr,ma.bank_iban||'',ma.bank_bic||'',ma.bank_name||'']);
+    });
+    var wb=XLSX.utils.book_new();var ws=XLSX.utils.aoa_to_sheet(rows);
+    ws['!cols']=[{wch:24},{wch:28},{wch:30},{wch:26},{wch:14},{wch:18}];
+    XLSX.utils.book_append_sheet(wb,ws,'Mitarbeiter');
+    XLSX.writeFile(wb,'Mitarbeiter_'+new Date().toISOString().slice(0,10)+'.xlsx');
+    showToast('✅ Excel heruntergeladen!','ok');
+  });
+}
+function exportZeitkonto(){
+  ls('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',function(){
+    _db.collection('zeiteintraege').get().then(function(snap){
+      var byMA={};
+      snap.forEach(function(d){
+        var e=d.data();if(!byMA[e.uid])byMA[e.uid]={stunden:0,stundenwert:0,auszahlung:0,saldo:0,monate:0};
+        var diff=e.differenz||((e.gesamtstunden||0)*STUNDENSATZ-MONATSPAUSCHALE);
+        byMA[e.uid].stunden+=(e.gesamtstunden||0);byMA[e.uid].stundenwert+=(e.stundenwert||(e.gesamtstunden||0)*STUNDENSATZ);
+        byMA[e.uid].auszahlung+=MONATSPAUSCHALE;byMA[e.uid].saldo+=diff;byMA[e.uid].monate++;
+      });
+      var rows=[['Mitarbeiter','Monate','Ges. Stunden','Ges. Stundenwert (€)','Ges. Auszahlung (€)','Zeitkonto-Saldo (€)']];
+      Object.keys(byMA).forEach(function(uid){
+        var ma=_allMA.find(function(m){return m.id===uid;})||{};
+        var nm=((ma.vorname||'')+' '+(ma.nachname||'')).trim()||uid;
+        var z=byMA[uid];
+        rows.push([nm,z.monate,+z.stunden.toFixed(2),+z.stundenwert.toFixed(2),+z.auszahlung.toFixed(2),+z.saldo.toFixed(2)]);
+      });
+      var wb=XLSX.utils.book_new();var ws=XLSX.utils.aoa_to_sheet(rows);
+      ws['!cols']=[{wch:24},{wch:8},{wch:16},{wch:22},{wch:20},{wch:20}];
+      XLSX.utils.book_append_sheet(wb,ws,'Zeitkonten');
+      XLSX.writeFile(wb,'Zeitkonto_'+new Date().toISOString().slice(0,10)+'.xlsx');
+      showToast('✅ Excel heruntergeladen!','ok');
+    });
+  });
+}
+
+/* SETTINGS */
+function loadEJS(){
+  _db.collection('settings').doc('emailjs').get().then(function(s){
+    if(!s.exists)return;var d=s.data();
+    document.getElementById('ejsPublic').value=d.publicKey||'';
+    document.getElementById('ejsService').value=d.serviceId||'';
+    document.getElementById('ejsZeitTpl').value=d.zeitTpl||'';
+  }).catch(function(){});
+}
+function saveEJS(){
+  var data={publicKey:document.getElementById('ejsPublic').value.trim(),serviceId:document.getElementById('ejsService').value.trim(),zeitTpl:document.getElementById('ejsZeitTpl').value.trim()};
+  _db.collection('settings').doc('emailjs').set(data,{merge:true}).then(function(){
+    _ejsKeys=Object.assign(_ejsKeys,data);
+    var msg=document.getElementById('ejsMsg');msg.className='adm-msg ok';msg.textContent='✅ Gespeichert!';
+    showToast('Einstellungen gespeichert.','ok');
+  }).catch(function(){var msg=document.getElementById('ejsMsg');msg.className='adm-msg err';msg.textContent='Fehler.';});
+}
+
+/* HELPERS */
+function monthLabel(monat){var p=monat.split('-');return MONATE[parseInt(p[1])-1]+' '+p[0];}
+function fmtEur(n){return n.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.')+' €';}
+/* ── PUSH NOTIFICATIONS ── */
+var _pushSub=null;
+var VAPID_PUBLIC_KEY='BL7c9RQZh6R3dcpHmujLgAQ9SeiA7grGoPW1dOY_r2hu_3GVLMtkIO4hiTltTVvawUggb_PYZpe3uNTi-WcyCwA';
+var PUSH_SERVER='http://localhost:3001'; // Nach Deployment: Render.com-URL eintragen
+
+function urlBase64ToUint8Array(b){
+  var pad='='.repeat((4-b.length%4)%4);
+  var base64=(b+pad).replace(/-/g,'+').replace(/_/g,'/');
+  var raw=window.atob(base64);
+  var arr=new Uint8Array(raw.length);
+  for(var i=0;i<raw.length;i++)arr[i]=raw.charCodeAt(i);
+  return arr;
+}
+
+function initPush(){
+  if(!('serviceWorker' in navigator)||!('PushManager' in window)){
+    var st=document.getElementById('pushStatus');
+    if(st)st.textContent='Push wird von diesem Browser nicht unterstützt.';
+    return;
+  }
+  navigator.serviceWorker.ready.then(function(reg){
+    reg.pushManager.getSubscription().then(function(sub){
+      _pushSub=sub;
+      updatePushUI(!!sub);
+    });
+  });
+}
+
+function updatePushUI(isSubscribed){
+  var btn=document.getElementById('pushToggleBtn');
+  var st=document.getElementById('pushStatus');
+  if(!btn||!st)return;
+  if(isSubscribed){
+    btn.textContent='🔕 Push deaktivieren';
+    btn.className='btn btn-ghost';
+    st.textContent='✅ Push-Benachrichtigungen sind aktiv.';
+    st.style.color='var(--green)';
+  }else{
+    btn.textContent='🔔 Push aktivieren';
+    btn.className='btn btn-blue';
+    st.textContent='Push-Benachrichtigungen sind deaktiviert.';
+    st.style.color='';
+  }
+}
+
+function togglePush(){if(_pushSub){unsubscribePush();}else{subscribePush();}}
+
+function subscribePush(){
+  Notification.requestPermission().then(function(perm){
+    if(perm!=='granted'){showToast('Berechtigung verweigert.','err');return;}
+    navigator.serviceWorker.ready.then(function(reg){
+      reg.pushManager.subscribe({
+        userVisibleOnly:true,
+        applicationServerKey:urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+      }).then(function(sub){
+        _pushSub=sub;
+        var uid=_auth&&_auth.currentUser?_auth.currentUser.uid:'admin';
+        var name=document.getElementById('admWelcome').textContent||'Admin';
+        fetch(PUSH_SERVER+'/subscribe',{
+          method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({subscription:sub,uid:uid,name:name})
+        }).catch(function(){
+          if(_db)_db.collection('pushSubscriptions').doc(uid).set({
+            subscription:JSON.stringify(sub),uid:uid,
+            erstellt:firebase.firestore.FieldValue.serverTimestamp()
+          });
+        });
+        updatePushUI(true);
+        showToast('🔔 Push aktiviert!','ok');
+      }).catch(function(e){showToast('Fehler: '+e.message,'err');});
+    });
+  });
+}
+
+function unsubscribePush(){
+  if(!_pushSub)return;
+  _pushSub.unsubscribe().then(function(){
+    var uid=_auth&&_auth.currentUser?_auth.currentUser.uid:'admin';
+    fetch(PUSH_SERVER+'/unsubscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({uid:uid})}).catch(function(){});
+    _pushSub=null;updatePushUI(false);showToast('Push deaktiviert.','ok');
+  });
+}
+
+function sendTestPush(){
+  if(Notification.permission!=='granted'){showToast('Bitte zuerst Push aktivieren.','err');return;}
+  navigator.serviceWorker.ready.then(function(reg){
+    reg.showNotification('Madrassa Hannover – Test',{
+      body:'Test-Benachrichtigung vom Admin-Panel.',
+      icon:'./images/logo.PNG',badge:'./images/logo.PNG',vibrate:[200,100,200]
+    });
+    showToast('📨 Test-Nachricht gesendet!','ok');
+  });
+}
+
+function populatePushRecipients(){
+  var sel=document.getElementById('pushRecipient');
+  if(!sel)return;
+  sel.innerHTML='<option value="all">📢 Alle Mitarbeiter</option>';
+  _allMA.forEach(function(m){
+    var opt=document.createElement('option');
+    opt.value=m.id;
+    opt.textContent='👤 '+((m.vorname||'')+' '+(m.nachname||'')).trim();
+    sel.appendChild(opt);
+  });
+}
+
+function sendCustomPush(){
+  var recipient=document.getElementById('pushRecipient').value;
+  var title=(document.getElementById('pushTitle').value||'').trim();
+  var body=(document.getElementById('pushBody').value||'').trim();
+  var msg=document.getElementById('pushSendMsg');
+  msg.className='adm-msg';
+  if(!title){msg.className='adm-msg err';msg.textContent='Bitte einen Titel eingeben.';return;}
+  if(!body){msg.className='adm-msg err';msg.textContent='Bitte eine Nachricht eingeben.';return;}
+  var endpoint=recipient==='all'?PUSH_SERVER+'/push/all':PUSH_SERVER+'/push/one';
+  var payload={title:title,body:body};
+  if(recipient!=='all')payload.uid=recipient;
+  var btn=event.target;btn.disabled=true;btn.innerHTML='<span style="opacity:.6">Wird gesendet…</span>';
+  fetch(endpoint,{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(payload)
+  }).then(function(r){return r.json();}).then(function(r){
+    btn.disabled=false;btn.textContent='📤 Push senden';
+    if(r.ok){
+      msg.className='adm-msg ok';
+      msg.textContent='✅ Gesendet an '+(r.gesendet||1)+' Empfänger.';
+      document.getElementById('pushTitle').value='';
+      document.getElementById('pushBody').value='';
+      document.getElementById('pushCharCount').textContent='0 / 200';
+    }else{
+      msg.className='adm-msg err';msg.textContent='Fehler: '+(r.error||'Unbekannt');
+    }
+  }).catch(function(){
+    btn.disabled=false;btn.textContent='📤 Push senden';
+    msg.className='adm-msg err';
+    msg.textContent='Server nicht erreichbar. Läuft der Push-Server?';
+  });
+}
+
+function showToast(msg,type){
+  var t=document.getElementById('toast');t.textContent=msg;
+  t.className='toast show'+(type?' '+type:'');
+  setTimeout(function(){t.className='toast';},3200);
+}
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){
+    navigator.serviceWorker.register('sw.js').catch(function(){});
+  });
+}
+
+/* ── PULL TO REFRESH ── */
+(function(){
+  var ptr=document.getElementById('ptrIndicator');
+  var startY=0,pulling=false,triggered=false;
+  var THRESHOLD=80;
+  document.addEventListener('touchstart',function(e){
+    if(window.scrollY===0){startY=e.touches[0].clientY;pulling=true;triggered=false;}
+  },{passive:true});
+  document.addEventListener('touchmove',function(e){
+    if(!pulling)return;
+    var dy=e.touches[0].clientY-startY;
+    if(dy>0&&window.scrollY===0){
+      var pct=Math.min(dy/THRESHOLD,1);
+      ptr.style.transform='translateX(-50%) translateY('+(Math.min(dy*0.4,40))+'px)';
+      ptr.style.opacity=pct;
+      ptr.querySelector('.ptr-arrow').style.transform='rotate('+(pct*180)+'deg)';
+      if(dy>=THRESHOLD&&!triggered){triggered=true;ptr.querySelector('.ptr-arrow').textContent='🔄';}
+    }
+  },{passive:true});
+  document.addEventListener('touchend',function(){
+    if(!pulling)return;
+    pulling=false;
+    ptr.style.transform='translateX(-50%) translateY(-40px)';
+    ptr.style.opacity='0';
+    if(triggered){showToast('Wird aktualisiert…','');setTimeout(function(){location.reload();},400);}
+  },{passive:true});
+})();
+</script>
+</body>
+</html>
