@@ -1,0 +1,27 @@
+{
+  "name": "Admin – Madrassa Hannover",
+  "short_name": "Zeiterfassung Admin",
+  "description": "Admin-Panel für die Zeiterfassung der Madrassa Hannover e.V.",
+  "start_url": "./modir.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "theme_color": "#1d3a6e",
+  "background_color": "#faf6ef",
+  "lang": "de",
+  "icons": [
+    {
+      "src": "images/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "images/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "utilities"]
+}
