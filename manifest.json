@@ -1,42 +1,26 @@
 {
-  "name": "MPortal – Madrassa",
+  "name": "MPortal – Madrassa Hannover",
   "short_name": "MPortal",
-  "description": "Stunden erfassen und einreichen – Madrassa Hannover e.V.",
+  "description": "Lehrerportal der Madrassa Hannover e.V.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "orientation": "portrait",
-  "theme_color": "#2c5282",
-  "background_color": "#1d3a6e",
+  "orientation": "any",
+  "theme_color": "#1d3a6e",
+  "background_color": "#faf6ef",
   "lang": "de",
   "icons": [
     {
       "src": "images/logo.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
     },
     {
       "src": "images/logo.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "maskable"
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "Zeiterfassung",
-      "short_name": "Zeiten",
-      "description": "Zur Zeiterfassung",
-      "url": "./zeiterfassung.html",
-      "icons": [{ "src": "images/logo.png", "sizes": "192x192" }]
-    },
-    {
-      "name": "Verlauf anzeigen",
-      "short_name": "Verlauf",
-      "description": "Meine Abrechnungen",
-      "url": "./zeiterfassung.html#verlauf",
-      "icons": [{ "src": "images/logo.png", "sizes": "192x192" }]
+      "purpose": "any maskable"
     }
   ],
   "categories": ["productivity", "utilities"]
