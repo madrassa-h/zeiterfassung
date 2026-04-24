@@ -1,5 +1,5 @@
-/* Madrassa Hannover – Service Worker v3 */
-const CACHE = 'madrassa-v3';
+/* Madrassa Hannover – Service Worker v4 */
+const CACHE = 'madrassa-v4';
 const ASSETS = [
   './',
   './index.html',
@@ -10,7 +10,7 @@ const ASSETS = [
   './modir.html',
   './manifest.json',
   './manifest-admin.json',
-  './images/logo.PNG',
+  './images/logo.png',
   'https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap'
 ];
 
@@ -68,8 +68,8 @@ self.addEventListener('push', function(e) {
   try { data = e.data ? e.data.json() : {}; } catch(x) {}
   var title  = data.title  || 'Madrassa Hannover';
   var body   = data.body   || 'Neue Benachrichtigung';
-  var icon   = data.icon   || './images/logo.PNG';
-  var badge  = data.badge  || './images/logo.PNG';
+  var icon   = data.icon   || './images/logo.png';
+  var badge  = data.badge  || './images/logo.png';
   var url    = data.url    || './index.html';
   e.waitUntil(
     self.registration.showNotification(title, {
