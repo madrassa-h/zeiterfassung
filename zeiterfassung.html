@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,viewport-fit=cover"/>
+  <title>Zeiterfassung – Madrassa Hannover</title>
+    <meta name="robots" content="noindex,nofollow"/>
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="theme-color" content="#1d3a6e"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="Zeiterfassung"/>
+  <link rel="apple-touch-icon" href="images/logo.PNG"/>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --blue:#2c5282;--blue-light:#4070b8;--blue-dark:#1d3a6e;
+      --gold:#c4973a;--gold-light:#e8b84b;
+      --cream:#faf6ef;--sand:#f0e8d6;--text:#1a1a1a;--text-muted:#6b6355;
+      --border:#d4c9b0;--error:#c0392b;--green:#27ae60;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:"DM Sans",sans-serif;background:var(--cream);color:var(--text);
+      min-height:100vh;min-height:100dvh;
+      min-height:-webkit-fill-available;
+      overflow-x:hidden;
+      -webkit-text-size-adjust:100%;
+      overscroll-behavior-y:contain;
+    }
+    html{height:-webkit-fill-available}
+
+    #authScreen{min-height:100vh;min-height:100dvh;background:linear-gradient(160deg,var(--blue-dark) 0%,var(--blue) 55%,var(--blue-light) 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;padding-top:calc(24px + env(safe-area-inset-top,0px));padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))}
+    .auth-logo{width:100px;height:100px;object-fit:contain;border-radius:50%;background:#fff;padding:6px;margin-bottom:16px;box-shadow:0 8px 32px rgba(0,0,0,.3)}
+    .app-header img,.app-header-logo{width:42px;height:42px;object-fit:contain;border-radius:50%;background:#fff;padding:2px;flex-shrink:0}
+    .auth-title{font-family:"Amiri",serif;font-size:1.9rem;color:#fff;text-align:center;margin-bottom:4px}
+    .auth-sub{color:rgba(255,255,255,.7);font-size:.85rem;text-align:center;margin-bottom:28px}
+    .auth-card{background:#fff;border-radius:20px;padding:28px 22px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+    .auth-tabs{display:flex;border-radius:10px;overflow:hidden;border:1px solid var(--border);margin-bottom:22px}
+    .auth-tab{flex:1;padding:10px;border:none;background:var(--cream);font-family:inherit;font-size:.85rem;cursor:pointer;transition:all .2s;color:var(--text-muted)}
+    .auth-tab.on{background:var(--blue);color:#fff;font-weight:600}
+    .auth-panel{display:none} .auth-panel.on{display:block}
+    .af{margin-bottom:13px}
+    .af label{display:block;font-size:.72rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
+    .af input{width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:.92rem;outline:none;transition:border-color .2s;background:var(--cream)}
+    .af input:focus{border-color:var(--blue);background:#fff}
+    .af-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .auth-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--blue),var(--blue-light));color:#fff;border:none;border-radius:10px;font-family:inherit;font-size:.95rem;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(44,82,130,.35);margin-top:4px;transition:all .2s}
+    .auth-btn:hover{transform:translateY(-1px);box-shadow:0 6px 22px rgba(44,82,130,.45)}
+    .auth-btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
+    .auth-err{background:rgba(192,57,43,.08);color:var(--error);border-left:3px solid var(--error);padding:10px 12px;border-radius:6px;font-size:.79rem;margin-bottom:12px;display:none}
+
+    #appScreen{display:none;min-height:100vh;min-height:100dvh;padding-bottom:calc(72px + env(safe-area-inset-bottom,0px));max-width:540px;margin:0 auto}
+    .app-header{background:linear-gradient(135deg,var(--blue-dark),var(--blue));
+      padding:14px 16px;
+      padding-top:calc(14px + env(safe-area-inset-top,0px));
+      display:flex;align-items:center;gap:10px;
+      position:sticky;top:0;z-index:100;
+      box-shadow:0 2px 12px rgba(0,0,0,.2);
+    }
+    .app-header img{width:36px;height:36px;object-fit:contain;border-radius:50%;background:#fff;padding:2px;flex-shrink:0}
+    .hdr-title{color:#fff;font-size:1rem;font-weight:600;line-height:1.2}
+    .hdr-sub{color:rgba(255,255,255,.65);font-size:.7rem}
+    /* right side: user name + icon buttons */
+    .hdr-right{margin-left:auto;display:flex;align-items:center;gap:6px;flex-shrink:0}
+    .hdr-name{color:rgba(255,255,255,.8);font-size:.72rem;font-weight:500;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-right:2px}
+    .hdr-icon-btn{
+      width:36px;height:36px;
+      border-radius:10px;border:none;
+      background:rgba(255,255,255,.15);
+      color:#fff;font-size:1.1rem;
+      cursor:pointer;
+      display:flex;align-items:center;justify-content:center;
+      transition:background .2s;
+      -webkit-tap-highlight-color:transparent;
+      touch-action:manipulation;
+      flex-shrink:0;
+	  
+	  
+
+    }
+    .hdr-icon-btn:hover,.hdr-icon-btn:active{background:rgba(255,255,255,.28)}
+    .hdr-icon-btn.active-page{background:rgba(255,255,255,.3);outline:2px solid rgba(255,255,255,.5)}
+
+    .bottom-nav{
+      position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+      width:100%;max-width:540px;
+      background:#fff;border-top:1px solid var(--border);
+      display:flex;z-index:200;
+      box-shadow:0 -3px 16px rgba(0,0,0,.08);
+      padding-bottom:env(safe-area-inset-bottom,0px);
+    }
+    .nav-item{
+      flex:1;display:flex;flex-direction:column;align-items:center;
+      padding:10px 4px 8px;
+      cursor:pointer;border:none;background:none;
+      font-family:inherit;transition:color .2s;
+      color:var(--text-muted);
+      -webkit-tap-highlight-color:transparent;
+      touch-action:manipulation;
+      min-height:56px;
+    }
+    .nav-item.on{color:var(--blue)}
+    .nav-icon{font-size:1.45rem;line-height:1}
+    .nav-label{font-size:.6rem;font-weight:500;letter-spacing:.04em;text-transform:uppercase;margin-top:3px}
+    .nav-item.on .nav-label{font-weight:700}
+
+    .app-page{display:none;padding:16px 14px}
+    .app-page.on{display:block;animation:fadeUp .25s ease both}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+    .month-nav{display:flex;align-items:center;justify-content:space-between;background:#fff;border-radius:14px;padding:12px 14px;margin-bottom:14px;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+    .mnav-btn{background:none;border:1.5px solid var(--border);border-radius:8px;width:36px;height:36px;font-size:1rem;cursor:pointer;color:var(--blue);display:flex;align-items:center;justify-content:center;transition:all .2s}
+    .mnav-btn:hover{background:var(--blue);color:#fff;border-color:var(--blue)}
+    .mnav-title{text-align:center}
+    .mnav-name{font-family:"Amiri",serif;font-size:1.25rem;color:var(--blue-dark);line-height:1}
+    .mnav-year{font-size:.72rem;color:var(--text-muted)}
+
+    .sum-card{background:linear-gradient(135deg,var(--blue-dark),var(--blue));border-radius:16px;padding:18px;margin-bottom:14px;display:grid;grid-template-columns:1fr 1px 1fr 1px 1fr;gap:0;box-shadow:0 6px 24px rgba(44,82,130,.3)}
+    .sum-div{background:rgba(255,255,255,.15)}
+    .sum-stat{text-align:center;padding:4px 6px}
+    .sum-val{font-size:1.35rem;font-weight:700;color:#fff;line-height:1}
+    .sum-lbl{font-size:.58rem;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+
+    .status-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+    .s-offen{background:var(--sand);color:var(--text-muted)}
+    .s-eingereicht{background:#fef3cd;color:#b07d00}
+    .s-genehmigt{background:rgba(39,174,96,.12);color:#1a7a42}
+    .s-bezahlt{background:rgba(44,82,130,.12);color:var(--blue-dark)}
+
+    .month-status-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding:8px 12px;background:#fff;border-radius:10px;box-shadow:0 1px 6px rgba(0,0,0,.05)}
+    .month-status-row .label{font-size:.72rem;color:var(--text-muted);font-weight:500}
+
+    .rate-info{background:var(--sand);border-radius:10px;padding:10px 13px;margin-bottom:12px;font-size:.8rem;color:var(--text-muted);border-left:3px solid var(--gold)}
+    .rate-info strong{color:var(--blue-dark)}
+    .locked-note{background:rgba(39,174,96,.08);border-left:3px solid var(--green);border-radius:8px;padding:10px 13px;margin-bottom:12px;font-size:.8rem;color:#1a7a42}
+
+    .day-list{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+    .day-row{display:flex;align-items:center;background:#fff;border-radius:11px;padding:9px 12px;gap:10px;border:1.5px solid transparent;transition:border-color .15s}
+    .day-row.weekend{background:#fdf7ee}
+    .day-row.today{border-color:var(--blue-light)!important}
+    .day-row.has-h{border-color:rgba(44,82,130,.2)}
+    .day-row.locked{opacity:.7}
+    .day-info{flex:1;min-width:0}
+    .day-name{font-size:.65rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em}
+    .day-date{font-size:.95rem;font-weight:500;color:var(--text)}
+    .day-row.weekend .day-name{color:var(--gold)}
+    .day-row.weekend .day-date{color:var(--text-muted)}
+    .hours-ctrl{display:flex;align-items:center;gap:5px;flex-shrink:0}
+    .h-btn{width:30px;height:30px;border-radius:7px;border:none;background:var(--sand);font-size:1rem;cursor:pointer;color:var(--text-muted);transition:all .15s;font-weight:700;display:flex;align-items:center;justify-content:center}
+    .h-btn:hover{background:var(--blue);color:#fff}
+    .h-btn:active{transform:scale(.9)}
+    .h-inp{width:50px;text-align:center;border:1.5px solid var(--border);border-radius:8px;padding:5px 3px;font-family:inherit;font-size:.95rem;font-weight:600;color:var(--blue-dark);background:var(--cream);outline:none}
+    .h-inp:focus{border-color:var(--blue);background:#fff}
+    .h-inp:disabled,.h-btn:disabled{opacity:.4;cursor:not-allowed}
+    .h-unit{font-size:.68rem;color:var(--text-muted);width:12px}
+
+    .btn-primary{width:100%;padding:15px;background:linear-gradient(135deg,var(--blue),var(--blue-light));color:#fff;border:none;border-radius:13px;font-family:inherit;font-size:.95rem;font-weight:600;cursor:pointer;box-shadow:0 4px 18px rgba(44,82,130,.3);letter-spacing:.02em;transition:box-shadow .3s}
+    .btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(44,82,130,.4)}
+    .btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
+    .btn-gold{width:100%;padding:14px;background:linear-gradient(135deg,var(--gold),var(--gold-light));color:#fff;border:none;border-radius:12px;font-family:inherit;font-size:.95rem;font-weight:600;cursor:pointer;box-shadow:0 4px 14px rgba(196,151,58,.3);transition:all .2s}
+    .btn-gold:hover{transform:translateY(-1px)}
+    .btn-gold:disabled{opacity:.5;cursor:not-allowed;transform:none}
+    .btn-gap{height:8px}
+
+    .profile-hdr{background:linear-gradient(135deg,var(--blue-dark),var(--blue));border-radius:16px;padding:22px;margin-bottom:14px;text-align:center}
+    .profile-avatar{width:58px;height:58px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:1.7rem;margin:0 auto 10px}
+    .profile-name{font-family:"Amiri",serif;font-size:1.4rem;color:#fff;margin-bottom:4px}
+    .pcard{background:#fff;border-radius:13px;padding:18px;margin-bottom:12px;box-shadow:0 2px 10px rgba(0,0,0,.05)}
+    .pcard h4{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:13px}
+    .pf{margin-bottom:11px}
+    .pf label{display:block;font-size:.72rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+    .pf input{width:100%;padding:11px 12px;border:1.5px solid var(--border);border-radius:9px;font-family:inherit;font-size:.9rem;background:var(--cream);outline:none;transition:border-color .2s}
+    .pf input:focus{border-color:var(--blue);background:#fff}
+    .pf-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+    .hist-item{background:#fff;border-radius:13px;padding:14px;margin-bottom:9px;display:flex;align-items:center;gap:13px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+    .hist-mon{width:50px;height:50px;background:var(--sand);border-radius:11px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
+    .hist-mname{font-size:.68rem;font-weight:700;text-transform:uppercase;color:var(--blue-dark)}
+    .hist-myear{font-size:.62rem;color:var(--text-muted)}
+    .hist-info{flex:1;min-width:0}
+    .hist-h{font-size:.95rem;font-weight:600;color:var(--text)}
+    .hist-amt{font-size:.82rem;color:var(--blue-dark);font-weight:500}
+
+    .sec-title{font-family:"Amiri",serif;font-size:1.25rem;color:var(--blue-dark);margin-bottom:3px}
+    .sec-desc{font-size:.8rem;color:var(--text-muted);margin-bottom:14px}
+
+    #toast{position:fixed;bottom:calc(80px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%) translateY(16px);background:var(--blue-dark);color:#fff;padding:11px 22px;border-radius:11px;font-size:.82rem;opacity:0;transition:all .3s;z-index:9999;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+    #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    #toast.err{background:var(--error)}
+    #toast.ok{background:var(--green)}
+
+    .spinner{width:17px;height:17px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle;margin-right:6px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .no-data{text-align:center;padding:36px 20px;color:var(--text-muted)}
+    .no-data-icon{font-size:2.2rem;margin-bottom:10px}
+
+    /* View toggle Monat/Woche */
+    .view-toggle{display:flex;background:var(--sand);border-radius:10px;padding:3px;gap:2px;margin-bottom:12px}
+    .vt-btn{flex:1;padding:8px 6px;border:none;border-radius:8px;font-family:inherit;font-size:.78rem;font-weight:600;cursor:pointer;color:var(--text-muted);background:transparent;transition:all .2s;letter-spacing:.02em}
+    .vt-btn.on{background:#fff;color:var(--blue);box-shadow:0 1px 6px rgba(0,0,0,.1)}
+
+    /* Zeitkonto badge */
+    .konto-plus{color:#1a7a42;font-weight:700}
+    .konto-minus{color:var(--error);font-weight:700}
+    .konto-zero{color:var(--text-muted)}
+
+    /* Zeitkonto info box */
+    .zeitkonto-box{background:#fff;border-radius:12px;padding:12px 14px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.05);display:flex;align-items:center;justify-content:space-between}
+    .zk-label{font-size:.75rem;color:var(--text-muted);font-weight:500}
+    .zk-value{font-size:1.05rem;font-weight:700}
+
+    /* Hist item Zeitkonto */
+    .hist-konto{font-size:.75rem;font-weight:600;margin-top:2px}
+    .btn-pdf{background:none;border:1.5px solid var(--blue);color:var(--blue);border-radius:8px;padding:6px 11px;font-family:inherit;font-size:.72rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .2s;flex-shrink:0}
+    .btn-pdf:hover{background:var(--blue);color:#fff}
+    #ptrIndicator{position:fixed;top:0;left:50%;transform:translateX(-50%) translateY(-40px);background:var(--blue);color:#fff;border-radius:0 0 20px 20px;padding:6px 18px;padding-top:calc(6px + env(safe-area-inset-top,0px));font-size:.78rem;font-weight:600;z-index:9998;opacity:0;transition:none;pointer-events:none;display:flex;align-items:center;gap:6px}
+    .ptr-arrow{display:inline-block;transition:transform .2s;font-size:1rem}
+    /* ── iPhone / iOS Fixes ── */
+    button,input,select,a{touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
+    /* Verhindert ungewollten Zoom bei Input-Fokus auf iOS */
+    input,select,textarea{font-size:max(16px,1em)!important;}
+    .af input,.pf input{font-size:16px!important;}
+    .h-inp{font-size:15px!important;}
+    .app-page{-webkit-overflow-scrolling:touch;}
+    #appScreen{position:relative;}
+	
+	#hdrName {                  
+    display: none !important;
+    }
+	
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+<div id="ptrIndicator"><span class="ptr-arrow">↓</span> Zum Aktualisieren ziehen</div>
+
+<!-- AUTH SCREEN -->
+<div id="authScreen">
+ <img src="images/logo.PNG" onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name=M&background=2c5282&color=fff&size=90&bold=true&rounded=true'" alt="Madrassa Hannover e.V." class="auth-logo"/>
+  <div class="auth-title">Zeiterfassung</div>
+  <div class="auth-sub">Madrassa Hannover e.V.</div>
+  <div class="auth-card">
+    <div class="auth-tabs">
+      <button class="auth-tab on" id="tabLogin" onclick="authTab('login',this)">Anmelden</button>
+      <button class="auth-tab" id="tabReg" onclick="authTab('reg',this)">Registrieren</button>
+    </div>
+    <div class="auth-panel on" id="pLogin">
+      <div class="auth-err" id="loginErr"></div>
+      <div class="af"><label>E-Mail</label><input type="email" id="loginEmail" placeholder="name@beispiel.de" autocomplete="username"/></div>
+      <div class="af"><label>Passwort</label><input type="password" id="loginPw" placeholder="Passwort" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+      <button class="auth-btn" id="loginBtn" onclick="doLogin()">Anmelden</button>
+	  
+
+
+      <div style="text-align:center;margin-top:12px">
+        <button onclick="authTab('reset',document.getElementById('tabReset'))" style="background:none;border:none;color:var(--blue-light);font-family:inherit;font-size:.78rem;cursor:pointer;text-decoration:underline;padding:0">Passwort vergessen?</button>
+      </div>
+	  
+	  	  <div style="text-align:center; margin-top:22px">
+  <a href="index.html" style="display:inline-block; color:var(--text-muted); text-decoration:none;">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+      <polyline points="9 22 9 12 15 12 15 22"></polyline>
+    </svg>
+  </a>
+</div>
+	  
+    </div>
+    <div class="auth-panel" id="pReset">
+      <div style="font-size:.82rem;color:var(--text-muted);margin-bottom:14px;line-height:1.6">Gib deine E-Mail-Adresse ein. Wir senden dir einen Link zum Zurücksetzen des Passworts.</div>
+      <div class="auth-err" id="resetErr"></div>
+      <div class="auth-err" id="resetOk" style="background:rgba(39,174,96,.08);color:#1a7a42;border-left-color:#27ae60;display:none"></div>
+      <div class="af"><label>E-Mail</label><input type="email" id="resetEmail" placeholder="name@beispiel.de"/></div>
+      <button class="auth-btn" id="resetBtn" onclick="doReset()">🔑 Reset-Link senden</button>
+      <div style="text-align:center;margin-top:12px">
+        <button onclick="authTab('login',document.getElementById('tabLogin'))" style="background:none;border:none;color:var(--text-muted);font-family:inherit;font-size:.78rem;cursor:pointer;text-decoration:underline;padding:0">← Zurück zur Anmeldung</button>
+      </div>
+    </div>
+    <div class="auth-panel" id="pReg">
+      <div class="auth-err" id="regErr"></div>
+      <div class="af-row">
+        <div class="af"><label>Vorname</label><input type="text" id="regVorname" placeholder="Max"/></div>
+        <div class="af"><label>Nachname</label><input type="text" id="regNachname" placeholder="Mustermann"/></div>
+      </div>
+      <div class="af"><label>E-Mail</label><input type="email" id="regEmail" placeholder="name@beispiel.de"/></div>
+      <div class="af"><label>Passwort</label><input type="password" id="regPw" placeholder="Min. 6 Zeichen"/></div>
+      <button class="auth-btn" id="regBtn" onclick="doRegister()">Konto erstellen</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP SCREEN -->
+<!-- APP SCREEN -->
+<div id="appScreen">
+  <header class="app-header" style="position:relative;">
+    <img src="images/logo.PNG" onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name=M&background=2c5282&color=fff&size=90&bold=true&rounded=true'" alt="Madrassa Hannover e.V." class="app-header-logo"/>
+    <div>
+      <div class="hdr-title">Zeiterfassung</div>
+      <div class="hdr-sub">Madrassa Hannover e.V.</div>
+    </div>
+	
+     <span class="hdr-name" id="hdrName" style="position:absolute;left:50%;transform:translateX(-50%);pointer-events:none;">–</span>  <!-- Name vom Mitarbeiter -->
+   
+    <div class="hdr-right">
+      <a href="index.html" class="hdr-icon-btn" title="Portal" aria-label="Zurück zum Portal" style="text-decoration:none;opacity:.7;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+      </a>
+	  
+	  
+      <button class="hdr-icon-btn" onclick="doLogout()" title="Abmelden" aria-label="Abmelden">⏻</button>
+    </div>
+  </header>
+
+  <!-- STUNDEN PAGE -->
+  <div class="app-page on" id="pg-zeit">
+    <div class="month-nav">
+      <button class="mnav-btn" onclick="changeMonth(-1)">&#8249;</button>
+      <div class="mnav-title">
+        <div class="mnav-name" id="mnName">–</div>
+        <div class="mnav-year" id="mnYear">–</div>
+      </div>
+      <button class="mnav-btn" onclick="changeMonth(1)">&#8250;</button>
+    </div>
+    <div class="sum-card">
+      <div class="sum-stat"><div class="sum-val" id="sumH">0</div><div class="sum-lbl">Stunden</div></div>
+      <div class="sum-div"></div>
+      <div class="sum-stat"><div class="sum-val">170 €</div><div class="sum-lbl">Auszahlung</div></div>
+      <div class="sum-div"></div>
+      <div class="sum-stat"><div class="sum-val" id="sumKonto">–</div><div class="sum-lbl">Zeitkonto</div></div>
+    </div>
+    <div id="lockedNote" class="locked-note" style="display:none">✅ Dieser Monat wurde eingereicht und kann nicht mehr bearbeitet werden.</div>
+    <!-- Monat / Woche Toggle -->
+    <div class="view-toggle">
+      <button class="vt-btn on" id="vtWoche" onclick="setViewMode('woche',this)">📆 Woche</button>
+      <button class="vt-btn" id="vtMonat" onclick="setViewMode('monat',this)">📅 Monat</button>
+    </div>
+    <div id="weekNav" style="display:none;align-items:center;justify-content:space-between;background:#fff;border-radius:12px;padding:9px 12px;margin-bottom:10px;box-shadow:0 1px 6px rgba(0,0,0,.05)">
+      <button class="mnav-btn" onclick="changeWeek(-1)">&#8249;</button>
+      <span id="weekLabel" style="font-size:.85rem;font-weight:600;color:var(--blue-dark)">–</span>
+      <button class="mnav-btn" onclick="changeWeek(1)">&#8250;</button>
+    </div>
+    <div class="day-list" id="dayList"></div>
+    <button class="btn-primary" id="saveZeitBtn" onclick="saveZeit()">💾 Stunden speichern</button>
+    <div class="btn-gap"></div>
+    <button class="btn-gold" id="einreichenBtn" onclick="einreichen()">📤 Monat einreichen</button>
+    <div id="bottomStatus" style="display:none;background:rgba(39,174,96,.08);border-radius:13px;padding:16px;text-align:center;border:1.5px solid var(--green)">
+      <div style="font-size:.78rem;color:#1a7a42;font-weight:500;margin-bottom:6px">Status dieses Monats</div>
+      <span id="bottomStatusBadge" class="status-badge s-eingereicht">Eingereicht</span>
+    </div>
+    <div style="height:16px"></div>
+  </div>
+
+  <!-- PROFIL PAGE -->
+  <div class="app-page" id="pg-profil">
+    <div class="profile-hdr">
+      <div class="profile-avatar">👤</div>
+      <div class="profile-name" id="profileName">–</div>
+    </div>
+    <div class="pcard">
+      <h4>📋 Persönliche Daten</h4>
+      <div class="pf-row">
+        <div class="pf"><label>Vorname</label><input type="text" id="pVorname" placeholder="Max"/></div>
+        <div class="pf"><label>Nachname</label><input type="text" id="pNachname" placeholder="Mustermann"/></div>
+      </div>
+      <div class="pf"><label>Geburtsdatum</label><input type="date" id="pGeb"/></div>
+      <div class="pf"><label>E-Mail</label><input type="email" id="pEmail" readonly style="opacity:.6;cursor:not-allowed"/></div>
+      <div class="pf"><label>Telefon</label><input type="tel" id="pTel" placeholder="+49 511 …"/></div>
+    </div>
+    <div class="pcard">
+      <h4>🏠 Adresse</h4>
+      <div class="pf-row">
+        <div class="pf"><label>Straße</label><input type="text" id="pStrasse" placeholder="Musterstraße"/></div>
+        <div class="pf"><label>Hausnr.</label><input type="text" id="pHausnr" placeholder="12a"/></div>
+      </div>
+      <div class="pf-row">
+        <div class="pf"><label>PLZ</label><input type="text" id="pPlz" placeholder="30159" maxlength="5"/></div>
+        <div class="pf"><label>Stadt</label><input type="text" id="pStadt" placeholder="Hannover"/></div>
+      </div>
+    </div>
+    <div class="pcard">
+      <h4>🏦 Bankverbindung</h4>
+      <div class="pf"><label>Kontoinhaber</label><input type="text" id="pKontoinhaber" placeholder="Max Mustermann"/></div>
+      <div class="pf"><label>IBAN</label><input type="text" id="pIban" placeholder="DE12 3456 7890 …" oninput="formatIban(this)"/></div>
+      <div class="pf-row">
+        <div class="pf"><label>BIC</label><input type="text" id="pBic" placeholder="BELADEBE"/></div>
+        <div class="pf"><label>Bank</label><input type="text" id="pBank" placeholder="Sparkasse"/></div>
+      </div>
+    </div>
+    <div class="pcard">
+      <h4>💶 Konditionen</h4>
+      <div class="pf"><label>Monatspauschale</label><input value="170,00 € / Monat (fest)" readonly style="opacity:.7;cursor:not-allowed;font-weight:600;color:var(--blue-dark)"/></div>
+      <div class="pf"><label>Stundensatz (Zeitkonto)</label><input value="13,00 € / Stunde" readonly style="opacity:.7;cursor:not-allowed;font-weight:600;color:var(--blue-dark)"/></div>
+    </div>
+    <button class="btn-gold" onclick="saveProfil()">💾 Profil speichern</button>
+    <div style="height:16px"></div>
+  </div>
+
+  <!-- VERLAUF PAGE -->
+  <div class="app-page" id="pg-verlauf">
+    <div class="sec-title">Meine Abrechnungen</div>
+    <div class="sec-desc">Alle eingereichten Monate im Überblick</div>
+    <div id="zkGesamtBox" style="display:none;background:linear-gradient(135deg,var(--blue-dark),var(--blue));border-radius:14px;padding:16px 18px;margin-bottom:14px;color:#fff">
+      <div style="font-size:.68rem;opacity:.7;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Zeitkonto-Gesamtsaldo</div>
+      <div style="font-size:1.6rem;font-weight:700" id="zkGesamtVal">0,00 €</div>
+      <div style="font-size:.72rem;opacity:.65;margin-top:3px">Differenz aller abgerechneten Monate</div>
+    </div>
+    <div id="verlaufList"><div class="no-data"><div class="no-data-icon">📂</div><p>Noch keine Einträge.</p></div></div>
+    <div style="height:16px"></div>
+  </div>
+
+  <nav class="bottom-nav">
+    <button class="nav-item" onclick="showPage('profil',this)"><span class="nav-icon">👤</span><span class="nav-label">Profil</span></button>
+    <button class="nav-item on" onclick="showPage('zeit',this)"><span class="nav-icon">⏱️</span><span class="nav-label">Stunden</span></button>
+    <button class="nav-item" onclick="showPage('verlauf',this)"><span class="nav-icon">📋</span><span class="nav-label">Verlauf</span></button>
+  </nav>
+</div>
+
+<div id="toast"></div>
+
+<script>
+var _auth=null,_db=null,_uid=null,_profil={};
+var _curYear=new Date().getFullYear(),_curMonth=new Date().getMonth()+1;
+var _curEntry={tage:{},status:'offen'};
+var _locked=false;
+var STUNDENSATZ=13;
+var MONATSPAUSCHALE=170;
+var _viewMode='woche'; // 'monat' oder 'woche'
+var _curWeekOffset=0;  // Wochen-Offset ab aktueller Woche
+var _zkVortrag=0;      // Zeitkonto-Vortrag aus Vormonaten
+var _hasUnsaved=false; // Ungespeicherte Änderungen
+var _autoSaveTimer=null;
+var MONATE=['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+var WOTAGE=['So','Mo','Di','Mi','Do','Fr','Sa'];
+
+// Firebase wird über <script>-Tags geladen (siehe Head)
+if(typeof firebase!=='undefined'){initFB();}else{window.addEventListener('load',initFB);}
+
+function initFB(){
+  if(typeof firebase==='undefined')return;
+  var app=firebase.initializeApp({
+    apiKey:'AIzaSyDAm7rFPC2bo7cy5q857WmTtxp8B2jT3qQ',
+    authDomain:'madrassa-87a27.firebaseapp.com',
+    projectId:'madrassa-87a27',
+    storageBucket:'madrassa-87a27.firebasestorage.app',
+    messagingSenderId:'40031299980',
+    appId:'1:40031299980:web:350a1b901390ec9d710ea9'
+  },'zeitMA');
+  _auth=app.auth();_db=app.firestore();
+  _auth.onAuthStateChanged(function(u){u?onLogin(u):showAuth();});
+  window.addEventListener('beforeunload',function(ev){
+    if(_hasUnsaved&&!_locked){ev.preventDefault();ev.returnValue='Du hast ungespeicherte Stunden. Wirklich verlassen?';}
+  });
+}
+
+function authTab(t,btn){
+  document.querySelectorAll('.auth-tab').forEach(function(b){b.classList.remove('on');});
+  document.querySelectorAll('.auth-panel').forEach(function(p){p.classList.remove('on');});
+  if(btn)btn.classList.add('on');
+  var panelId=t==='login'?'pLogin':t==='reg'?'pReg':'pReset';
+  document.getElementById(panelId).classList.add('on');
+}
+
+function doReset(){
+  var email=document.getElementById('resetEmail').value.trim();
+  var err=document.getElementById('resetErr');
+  var ok=document.getElementById('resetOk');
+  var btn=document.getElementById('resetBtn');
+  err.style.display='none';ok.style.display='none';
+  if(!email){err.style.display='block';err.textContent='Bitte E-Mail eingeben.';return;}
+  if(!_auth){err.style.display='block';err.textContent='Verbindung wird aufgebaut…';return;}
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span>Wird gesendet…';
+  _auth.sendPasswordResetEmail(email).then(function(){
+    ok.style.display='block';
+    ok.textContent='✅ Reset-Link wurde an '+email+' gesendet. Bitte Postfach prüfen.';
+    btn.disabled=false;btn.textContent='🔑 Reset-Link senden';
+  }).catch(function(e){
+    err.style.display='block';
+    err.textContent=e.code==='auth/user-not-found'?'Keine Konto mit dieser E-Mail gefunden.':'Fehler beim Senden. Bitte erneut versuchen.';
+    btn.disabled=false;btn.textContent='🔑 Reset-Link senden';
+  });
+}
+
+function doLogin(){
+  var email=document.getElementById('loginEmail').value.trim();
+  var pw=document.getElementById('loginPw').value;
+  var err=document.getElementById('loginErr');var btn=document.getElementById('loginBtn');
+  err.style.display='none';
+  if(!email||!pw){err.style.display='block';err.textContent='Bitte alle Felder ausfüllen.';return;}
+  if(!_auth){err.style.display='block';err.textContent='Verbindung wird aufgebaut…';return;}
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span>Anmelden…';
+  _auth.signInWithEmailAndPassword(email,pw).catch(function(e){
+    err.style.display='block';
+    err.textContent=(e.code==='auth/invalid-credential'||e.code==='auth/wrong-password')?'E-Mail oder Passwort falsch.':'Anmeldung fehlgeschlagen.';
+    btn.disabled=false;btn.textContent='Anmelden';
+  });
+}
+
+function doRegister(){
+  var v=document.getElementById('regVorname').value.trim();
+  var n=document.getElementById('regNachname').value.trim();
+  var email=document.getElementById('regEmail').value.trim();
+  var pw=document.getElementById('regPw').value;
+  var err=document.getElementById('regErr');var btn=document.getElementById('regBtn');
+  err.style.display='none';
+  if(!v||!n||!email||!pw){err.style.display='block';err.textContent='Bitte alle Felder ausfüllen.';return;}
+  if(pw.length<6){err.style.display='block';err.textContent='Passwort mind. 6 Zeichen.';return;}
+  if(!_auth){err.style.display='block';err.textContent='Verbindung wird aufgebaut…';return;}
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span>Wird erstellt…';
+  _auth.createUserWithEmailAndPassword(email,pw).then(function(r){
+    return _db.collection('mitarbeiter').doc(r.user.uid).set({vorname:v,nachname:n,email:email,stundensatz:STUNDENSATZ,erstellt:firebase.firestore.FieldValue.serverTimestamp(),aktiv:true});
+  }).catch(function(e){
+    err.style.display='block';
+    err.textContent=e.code==='auth/email-already-in-use'?'E-Mail bereits registriert.':'Registrierung fehlgeschlagen.';
+    btn.disabled=false;btn.textContent='Konto erstellen';
+  });
+}
+
+function doLogout(){if(_auth)_auth.signOut().then(showAuth);}
+
+// Opens a page from the header icon – also deselects bottom nav tabs
+function showPageFromHeader(name){
+  document.querySelectorAll('.nav-item').forEach(function(b){b.classList.remove('on');});
+  document.querySelectorAll('.app-page').forEach(function(p){p.classList.remove('on');});
+  var pg=document.getElementById('pg-'+name);
+  if(pg)pg.classList.add('on');
+  // highlight settings icon when profil is open
+  var settBtn=document.getElementById('hdrSettingsBtn');
+  if(settBtn)settBtn.classList.toggle('active-page', name==='profil');
+}
+
+function showAuth(){
+  document.getElementById('authScreen').style.display='flex';
+  document.getElementById('appScreen').style.display='none';
+  document.getElementById('loginBtn').disabled=false;document.getElementById('loginBtn').textContent='Anmelden';
+  document.getElementById('regBtn').disabled=false;document.getElementById('regBtn').textContent='Konto erstellen';
+}
+
+function onLogin(u){
+  _uid=u.uid;
+  document.getElementById('authScreen').style.display='none';
+  document.getElementById('appScreen').style.display='block';
+  loadProfil();renderMonthNav();loadZeit();loadZeitkonto();
+}
+
+function showPage(name,btn){
+  document.querySelectorAll('.app-page').forEach(function(p){p.classList.remove('on');});
+  document.querySelectorAll('.nav-item').forEach(function(b){b.classList.remove('on');});
+  document.getElementById('pg-'+name).classList.add('on');
+  btn.classList.add('on');
+  // clear settings button highlight
+  var settBtn=document.getElementById('hdrSettingsBtn');
+  if(settBtn)settBtn.classList.remove('active-page');
+  if(name==='verlauf')loadVerlauf();
+  window.scrollTo(0,0);
+}
+
+function loadProfil(){
+  if(!_db||!_uid)return;
+  _db.collection('mitarbeiter').doc(_uid).get().then(function(s){
+    if(!s.exists)return;
+    _profil=s.data();
+    var nm=(_profil.vorname||'')+' '+(_profil.nachname||'');
+    document.getElementById('hdrName').textContent=nm.trim();
+    document.getElementById('profileName').textContent=nm.trim()||'Mitarbeiter';
+    document.getElementById('pVorname').value=_profil.vorname||''
+    document.getElementById('pNachname').value=_profil.nachname||''
+    document.getElementById('pGeb').value=_profil.geburtsdatum||''
+    document.getElementById('pEmail').value=_profil.email||''
+    document.getElementById('pTel').value=_profil.telefon||''
+    document.getElementById('pStrasse').value=_profil.adresse_strasse||''
+    document.getElementById('pHausnr').value=_profil.adresse_hausnr||''
+    document.getElementById('pPlz').value=_profil.adresse_plz||''
+    document.getElementById('pStadt').value=_profil.adresse_stadt||''
+    document.getElementById('pKontoinhaber').value=_profil.bank_inhaber||''
+    document.getElementById('pIban').value=_profil.bank_iban||''
+    document.getElementById('pBic').value=_profil.bank_bic||''
+    document.getElementById('pBank').value=_profil.bank_name||''
+  }).catch(function(){});
+}
+
+function saveProfil(){
+  if(!_db||!_uid)return;
+  var data={
+    vorname:document.getElementById('pVorname').value.trim(),
+    nachname:document.getElementById('pNachname').value.trim(),
+    geburtsdatum:document.getElementById('pGeb').value,
+    telefon:document.getElementById('pTel').value.trim(),
+    adresse_strasse:document.getElementById('pStrasse').value.trim(),
+    adresse_hausnr:document.getElementById('pHausnr').value.trim(),
+    adresse_plz:document.getElementById('pPlz').value.trim(),
+    adresse_stadt:document.getElementById('pStadt').value.trim(),
+    bank_inhaber:document.getElementById('pKontoinhaber').value.trim(),
+    bank_iban:document.getElementById('pIban').value.trim(),
+    bank_bic:document.getElementById('pBic').value.trim(),
+    bank_name:document.getElementById('pBank').value.trim()
+  };
+  _db.collection('mitarbeiter').doc(_uid).update(data).then(function(){
+    _profil=Object.assign(_profil,data);
+    var nm=(data.vorname||'')+' '+(data.nachname||'');
+    document.getElementById('hdrName').textContent=nm.trim();
+    document.getElementById('profileName').textContent=nm.trim();
+    showToast('✅ Profil gespeichert!','ok');
+  }).catch(function(e){showToast('Fehler: '+e.message,'err');});
+}
+
+function formatIban(el){
+  var v=el.value.replace(/\s/g,'').toUpperCase();
+  el.value=v.replace(/(.{4})/g,'$1 ').trim();
+}
+
+function monthKey(y,m){return y+'-'+(m<10?'0':'')+m;}
+function daysInMonth(y,m){return new Date(y,m,0).getDate();}
+function fmtEur(n){return n.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.')+' €';}
+
+function renderMonthNav(){
+  document.getElementById('mnName').textContent=MONATE[_curMonth-1];
+  document.getElementById('mnYear').textContent=_curYear;
+}
+
+function changeMonth(d){
+  if(_hasUnsaved&&!_locked){
+    if(!confirm('Du hast ungespeicherte Änderungen. Trotzdem weiter?'))return;
+  }
+  _curMonth+=d;
+  if(_curMonth>12){_curMonth=1;_curYear++;}
+  if(_curMonth<1){_curMonth=12;_curYear--;}
+  _curWeekOffset=0;_hasUnsaved=false;clearTimeout(_autoSaveTimer);
+  renderMonthNav();loadZeit();loadZeitkonto();
+}
+
+function buildDayList(){
+  var list=document.getElementById('dayList');
+  list.innerHTML='';
+  var allDays=[];
+  var days=daysInMonth(_curYear,_curMonth);
+  if(_viewMode==='woche'){
+    allDays=getWeekDays();
+  }else{
+    for(var i=1;i<=days;i++)allDays.push(i);
+  }
+  var today=new Date();
+  for(var idx=0;idx<allDays.length;idx++){
+    var d=allDays[idx];
+    var dt=new Date(_curYear,_curMonth-1,d);
+    var dow=dt.getDay();
+    var isWE=(dow===0||dow===6);
+    var isToday=(today.getDate()===d&&today.getMonth()+1===_curMonth&&today.getFullYear()===_curYear);
+    var h=parseFloat(_curEntry.tage[String(d)])||0;
+    var cls='day-row'+(isWE?' weekend':'')+( isToday?' today':'')+( h>0?' has-h':'')+(_locked?' locked':'');
+    var dis=_locked?'disabled':'';
+    var row=document.createElement('div');
+    row.className=cls;row.id='dr-'+d;
+    row.innerHTML='<div class="day-info"><div class="day-name">'+WOTAGE[dow]+'</div><div class="day-date">'+d+'. '+MONATE[_curMonth-1].slice(0,3)+'.</div></div>'+
+      '<div class="hours-ctrl">'+
+      '<button class="h-btn" onclick="adjH('+d+',-0.5)" '+dis+'>−</button>'+
+      '<input class="h-inp" type="number" id="h-'+d+'" value="'+h+'" min="0" max="12" step="0.5" onchange="calcTotal();if(!_locked)markUnsaved();" '+dis+'/>'+
+      '<button class="h-btn" onclick="adjH('+d+',0.5)" '+dis+'>+</button>'+
+      '<span class="h-unit">h</span></div>';
+    list.appendChild(row);
+  }
+  // Woche Nav anzeigen
+  renderWeekNav();
+}
+
+function adjH(day,delta){
+  var inp=document.getElementById('h-'+day);if(!inp)return;
+  var v=Math.max(0,Math.min(12,Math.round((parseFloat(inp.value)||0+delta)*2)/2));
+  v=parseFloat(inp.value)||0;
+  v=Math.round((v+delta)*2)/2;
+  v=Math.max(0,Math.min(12,v));
+  inp.value=v;
+  calcTotal();updateRowStyle(day,v);
+  if(!_locked)markUnsaved();
+}
+
+function updateRowStyle(d,h){
+  var row=document.getElementById('dr-'+d);if(!row)return;
+  if(h>0)row.classList.add('has-h');else row.classList.remove('has-h');
+}
+
+function calcTotal(){
+  // Merge saved DB data with current DOM inputs (week view only shows partial days)
+  var tage=Object.assign({},_curEntry.tage||{});
+  var days=daysInMonth(_curYear,_curMonth);
+  for(var d=1;d<=days;d++){
+    var inp=document.getElementById('h-'+d);
+    if(inp){
+      var h=parseFloat(inp.value)||0;
+      if(h>0)tage[String(d)]=h;else delete tage[String(d)];
+      updateRowStyle(d,h);
+    }
+  }
+  var total=0;
+  for(var k in tage)total+=parseFloat(tage[k])||0;
+  var stundenwert=total*STUNDENSATZ;
+  var differenz=stundenwert-MONATSPAUSCHALE;
+  var kontoGesamt=_zkVortrag+differenz;
+  document.getElementById('sumH').textContent=total.toFixed(1).replace('.',',');
+  var kontoEl=document.getElementById('sumKonto');
+  if(kontoGesamt>0.005){kontoEl.textContent='+'+fmtEur(kontoGesamt);kontoEl.className='sum-val konto-plus';}
+  else if(kontoGesamt<-0.005){kontoEl.textContent=fmtEur(kontoGesamt);kontoEl.className='sum-val konto-minus';}
+  else{kontoEl.textContent='0,00 €';kontoEl.className='sum-val konto-zero';}
+}
+
+function markUnsaved(){
+  _hasUnsaved=true;
+  clearTimeout(_autoSaveTimer);
+  _autoSaveTimer=setTimeout(function(){autoSave();},500);
+}
+
+function autoSave(){
+  if(!_hasUnsaved||_locked)return;
+  var tage=collectTage();
+  var total=Object.values(tage).reduce(function(a,b){return a+b;},0);
+  var stundenwert=total*STUNDENSATZ;
+  var differenz=stundenwert-MONATSPAUSCHALE;
+  var key=monthKey(_curYear,_curMonth);
+  var data={uid:_uid,monat:key,tage:tage,gesamtstunden:total,stundenwert:stundenwert,gesamtbetrag:MONATSPAUSCHALE,differenz:differenz,status:_curEntry.status||'offen',aktualisiert:firebase.firestore.FieldValue.serverTimestamp()};
+  _db.collection('zeiteintraege').doc(_uid+'_'+key).set(data,{merge:true}).then(function(){
+    _curEntry=Object.assign(_curEntry,data);
+    _hasUnsaved=false;
+    var btn=document.getElementById('saveZeitBtn');
+    if(btn&&!_locked){
+      btn.textContent='✅ Gespeichert';
+      setTimeout(function(){btn.textContent='💾 Stunden speichern';},2000);
+    }
+  }).catch(function(){});
+}
+
+function loadZeit(){
+  if(!_db||!_uid)return;
+  var key=monthKey(_curYear,_curMonth);
+  _db.collection('zeiteintraege').doc(_uid+'_'+key).get().then(function(s){
+    _curEntry=s.exists?s.data():{tage:{},status:'offen'};
+    _locked=['eingereicht','genehmigt','bezahlt'].indexOf(_curEntry.status)>-1;
+    _hasUnsaved=false;clearTimeout(_autoSaveTimer);
+    buildDayList();calcTotal();updateStatusUI();
+  }).catch(function(){_curEntry={tage:{},status:'offen'};_locked=false;buildDayList();calcTotal();updateStatusUI();});
+}
+
+function updateStatusUI(){
+  var st=_curEntry.status||'offen';
+  var labels={offen:'Offen',eingereicht:'Eingereicht',genehmigt:'Genehmigt',bezahlt:'Bezahlt'};
+  document.getElementById('lockedNote').style.display=_locked?'block':'none';
+  document.getElementById('saveZeitBtn').style.display=_locked?'none':'block';
+  document.getElementById('saveZeitBtn').disabled=_locked;
+  var eBtn=document.getElementById('einreichenBtn');
+  eBtn.style.display=_locked?'none':'block';
+  eBtn.disabled=_locked;
+  var bStatus=document.getElementById('bottomStatus');
+  var bBadge=document.getElementById('bottomStatusBadge');
+  if(_locked){
+    bStatus.style.display='block';
+    bBadge.className='status-badge s-'+st;
+    bBadge.textContent=labels[st]||st;
+  }else{
+    bStatus.style.display='none';
+  }
+}
+
+function collectTage(){
+  // Start with existing DB data so non-visible week days are preserved
+  var tage=Object.assign({},_curEntry.tage||{});
+  var days=daysInMonth(_curYear,_curMonth);
+  for(var d=1;d<=days;d++){
+    var inp=document.getElementById('h-'+d);
+    if(inp){  // only touch days currently in DOM
+      var h=parseFloat(inp.value)||0;
+      if(h>0)tage[String(d)]=h;else delete tage[String(d)];
+    }
+  }
+  return tage;
+}
+
+function saveZeit(){
+  if(_locked)return;
+  var tage=collectTage();
+  var total=Object.values(tage).reduce(function(a,b){return a+b;},0);
+  var stundenwert=total*STUNDENSATZ;
+  var differenz=stundenwert-MONATSPAUSCHALE;
+  var key=monthKey(_curYear,_curMonth);
+  var data={uid:_uid,monat:key,tage:tage,gesamtstunden:total,stundenwert:stundenwert,gesamtbetrag:MONATSPAUSCHALE,differenz:differenz,status:_curEntry.status||'offen',aktualisiert:firebase.firestore.FieldValue.serverTimestamp()};
+  document.getElementById('saveZeitBtn').disabled=true;document.getElementById('saveZeitBtn').innerHTML='<span class="spinner"></span>Speichern…';
+  _db.collection('zeiteintraege').doc(_uid+'_'+key).set(data,{merge:true}).then(function(){
+    _curEntry=Object.assign(_curEntry,data);
+    _hasUnsaved=false;clearTimeout(_autoSaveTimer);
+    document.getElementById('saveZeitBtn').disabled=false;document.getElementById('saveZeitBtn').textContent='💾 Stunden speichern';
+    showToast('✅ Stunden gespeichert!','ok');
+  }).catch(function(e){
+    document.getElementById('saveZeitBtn').disabled=false;document.getElementById('saveZeitBtn').textContent='💾 Stunden speichern';
+    showToast('Fehler beim Speichern','err');
+  });
+}
+
+function einreichen(){
+  if(_locked)return;
+  var tage=collectTage();
+  var total=Object.values(tage).reduce(function(a,b){return a+b;},0);
+  if(total===0){showToast('Bitte Stunden eintragen','err');return;}
+  if(!confirm('Monat '+MONATE[_curMonth-1]+' '+_curYear+' zur Abrechnung einreichen?\nDanach nicht mehr bearbeitbar.'))return;
+  var stundenwert=total*STUNDENSATZ;
+  var differenz=stundenwert-MONATSPAUSCHALE;
+  var key=monthKey(_curYear,_curMonth);
+  var data={uid:_uid,monat:key,tage:tage,gesamtstunden:total,stundenwert:stundenwert,gesamtbetrag:MONATSPAUSCHALE,differenz:differenz,status:'eingereicht',eingereichtAm:firebase.firestore.FieldValue.serverTimestamp()};
+  _db.collection('zeiteintraege').doc(_uid+'_'+key).set(data,{merge:true}).then(function(){
+    _curEntry=Object.assign(_curEntry,data);_locked=true;
+    buildDayList();updateStatusUI();loadZeitkonto();
+    showToast('📤 Monat eingereicht!','ok');
+  }).catch(function(){showToast('Fehler','err');});
+}
+
+function loadVerlauf(){
+  var c=document.getElementById('verlaufList');
+  c.innerHTML='<div class="no-data"><div class="no-data-icon">⏳</div><p>Wird geladen…</p></div>';
+  _db.collection('zeiteintraege').where('uid','==',_uid).get().then(function(snap){
+    if(snap.empty){c.innerHTML='<div class="no-data"><div class="no-data-icon">📂</div><p>Noch keine Einträge.</p></div>';return;}
+    var entries=[];
+    snap.forEach(function(d){entries.push(d.data());});
+    entries.sort(function(a,b){return b.monat.localeCompare(a.monat);});
+    c.innerHTML='';
+    var gesamtSaldo=0;
+    entries.forEach(function(e){
+      var parts=e.monat.split('-');
+      var mname=MONATE[parseInt(parts[1])-1];
+      var st=e.status||'offen';
+      var labels={offen:'Offen',eingereicht:'Eingereicht',genehmigt:'Genehmigt',bezahlt:'Bezahlt'};
+      var diff=e.differenz||((e.gesamtstunden||0)*STUNDENSATZ-MONATSPAUSCHALE);
+      gesamtSaldo+=diff;
+      var diffSign=diff>0?'+':'';
+      var diffCls=diff>0?'konto-plus':diff<0?'konto-minus':'konto-zero';
+      var canPDF=(st==='eingereicht'||st==='genehmigt'||st==='bezahlt');
+      var pdfBtn=canPDF?'<button class="btn-pdf" onclick="downloadMitarbeiterPDF(\''+e.monat+'\')">📄 PDF</button>':'';
+      var div=document.createElement('div');div.className='hist-item';
+      div.innerHTML='<div class="hist-mon"><div class="hist-mname">'+mname.slice(0,3)+'</div><div class="hist-myear">'+parts[0]+'</div></div>'+
+        '<div class="hist-info"><div class="hist-h">'+((e.gesamtstunden||0).toFixed(1).replace('.',','))+' Std.</div>'+
+        '<div class="hist-amt">170,00 €</div>'+
+        '<div class="hist-konto '+diffCls+'">Zeitkonto: '+diffSign+fmtEur(diff)+'</div></div>'+
+        '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><span class="status-badge s-'+st+'">'+( labels[st]||st)+'</span>'+pdfBtn+'</div>';
+      c.appendChild(div);
+    });
+    // Show total saldo
+    var zkBox=document.getElementById('zkGesamtBox');
+    var zkVal=document.getElementById('zkGesamtVal');
+    zkBox.style.display='block';
+    var sSign=gesamtSaldo>0?'+':'';
+    zkVal.textContent=sSign+fmtEur(gesamtSaldo);
+  }).catch(function(err){c.innerHTML='<div class="no-data"><p>Fehler beim Laden. Bitte neu laden.</p></div>';console.error(err);});
+}
+
+function loadZeitkonto(){
+  if(!_db||!_uid)return;
+  var curKey=monthKey(_curYear,_curMonth);
+  _db.collection('zeiteintraege').where('uid','==',_uid).get().then(function(snap){
+    var saldo=0;
+    snap.forEach(function(d){
+      var e=d.data();
+      if(e.monat<curKey){ // nur Monate VOR dem aktuellen
+        var diff=e.differenz||((e.gesamtstunden||0)*STUNDENSATZ-MONATSPAUSCHALE);
+        saldo+=diff;
+      }
+    });
+    _zkVortrag=saldo;
+    var vEl=document.getElementById('zkVortrag');
+    if(vEl){
+      var sign=saldo>0?'+':'';
+      vEl.textContent=sign+fmtEur(saldo);
+      vEl.className='zk-value '+(saldo>0?'konto-plus':saldo<0?'konto-minus':'konto-zero');
+    }
+    calcTotal();
+  }).catch(function(){_zkVortrag=0;calcTotal();});
+}
+
+function setViewMode(mode, btn){
+  _viewMode=mode;
+  document.querySelectorAll('.vt-btn').forEach(function(b){b.classList.remove('on');});
+  btn.classList.add('on');
+  if(mode==='woche'){_curWeekOffset=0;}
+  buildDayList();
+  renderWeekNav();
+}
+
+function getWeekDays(){
+  // Aktuelle Woche basierend auf _curYear, _curMonth, _curWeekOffset
+  var today=new Date();
+  var refDate=new Date(_curYear,_curMonth-1,1);
+  // Montag dieser Woche im Referenzmonat
+  var firstDay=new Date(_curYear,_curMonth-1,1);
+  var dow=firstDay.getDay()||7; // Mo=1..So=7
+  var monday=new Date(firstDay);
+  monday.setDate(firstDay.getDate()-(dow-1)+_curWeekOffset*7);
+  var days=[];
+  for(var i=0;i<7;i++){
+    var d=new Date(monday);d.setDate(monday.getDate()+i);
+    if(d.getFullYear()===_curYear&&d.getMonth()===_curMonth-1){
+      days.push(d.getDate());
+    }
+  }
+  return days;
+}
+
+function renderWeekNav(){
+  var nav=document.getElementById('weekNav');
+  if(!nav)return;
+  if(_viewMode==='woche'){
+    nav.style.display='flex';
+    var wdays=getWeekDays();
+    var wEl=document.getElementById('weekLabel');
+    if(wdays.length>0){
+      wEl.textContent=wdays[0]+'. – '+wdays[wdays.length-1]+'. '+MONATE[_curMonth-1].slice(0,3)+'.';
+    }
+    // Pfeile deaktivieren wenn keine weiteren Wochen im Monat
+    var prevBtn=nav.querySelector('button:first-child');
+    var nextBtn=nav.querySelector('button:last-child');
+    _curWeekOffset--;var hasPrev=getWeekDays().length>0;_curWeekOffset++;
+    _curWeekOffset++;var hasNext=getWeekDays().length>0;_curWeekOffset--;
+    prevBtn.style.opacity=hasPrev?'1':'0.25';prevBtn.style.pointerEvents=hasPrev?'auto':'none';
+    nextBtn.style.opacity=hasNext?'1':'0.25';nextBtn.style.pointerEvents=hasNext?'auto':'none';
+  }else{nav.style.display='none';}
+}
+
+function changeWeek(d){
+  var saved=_curWeekOffset;
+  _curWeekOffset+=d;
+  if(getWeekDays().length===0){_curWeekOffset=saved;}
+  buildDayList();renderWeekNav();
+}
+
+function ls(src,cb){var s=document.createElement('script');s.src=src;s.async=true;s.onload=cb||function(){};s.onerror=function(){if(cb)cb();};document.body.appendChild(s);}
+
+function downloadMitarbeiterPDF(monat){
+  ls('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',function(){
+    ls('https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js',function(){
+      var img=new Image();img.crossOrigin='anonymous';
+      img.onload=function(){
+        var cv=document.createElement('canvas');cv.width=img.width;cv.height=img.height;
+        cv.getContext('2d').drawImage(img,0,0);
+        buildMitarbeiterPDF(monat,cv.toDataURL('image/png'));
+      };
+      img.onerror=function(){buildMitarbeiterPDF(monat,null);};
+      img.src='images/logo.PNG?_='+Date.now();
+    });
+  });
+}
+
+function buildMitarbeiterPDF(monat,logoDataUrl){
+  if(!_db||!_uid){showToast('Nicht eingeloggt','err');return;}
+  showToast('PDF wird erstellt…','');
+  _db.collection('zeiteintraege').doc(_uid+'_'+monat).get().then(function(s){
+    var e=s.exists?s.data():{tage:{},gesamtstunden:0};
+    var parts=monat.split('-');
+    var y=parseInt(parts[0]),m=parseInt(parts[1]);
+    var days=new Date(y,m,0).getDate();
+    var nm=((_profil.vorname||'')+' '+(_profil.nachname||'')).trim()||'Mitarbeiter';
+    var total=e.gesamtstunden||0;
+    var stundenwert=total*STUNDENSATZ;
+    var diff=e.differenz!==undefined?e.differenz:stundenwert-MONATSPAUSCHALE;
+    var diffSign=diff>=0?'+':'';
+    var doc=new window.jspdf.jsPDF({orientation:'p',unit:'mm',format:'a4'});
+    var L=14,R=196,MID=110;
+
+    // ── HEADER ───────────────────────────────────────────────
+    if(logoDataUrl){try{doc.addImage(logoDataUrl,'PNG',L,12,14,14);}catch(ex){}}
+    var tx=logoDataUrl?32:L;
+    doc.setTextColor(29,58,110);doc.setFont('helvetica','bold');doc.setFontSize(16);
+    doc.text('Lohnabrechnung',tx,20);
+    doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(107,99,85);
+    doc.text('Madrassa Hannover e.V.',tx,26);
+    doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(107,99,85);
+    doc.text('ABRECHNUNGSZEITRAUM',R,16,{align:'right'});
+    doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(29,58,110);
+    doc.text(MONATE[m-1]+' '+y,R,24,{align:'right'});
+    doc.setDrawColor(44,82,130);doc.setLineWidth(0.8);doc.line(L,32,R,32);
+
+    // ── INFO-GRID ────────────────────────────────────────────
+    var gy=40;
+    doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(107,99,85);
+    doc.text('MITARBEITER',L,gy);
+    doc.setDrawColor(212,201,176);doc.setLineWidth(0.3);doc.line(L,gy+1.5,MID-4,gy+1.5);
+    var ly=gy+7;
+    doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(26,26,26);
+    doc.text(nm,L,ly);
+    doc.setFont('helvetica','normal');doc.setFontSize(8.5);
+    var adr=[(_profil.adresse_strasse||''),(_profil.adresse_hausnr||'')].filter(Boolean).join(' ');
+    var plzStadt=[(_profil.adresse_plz||''),(_profil.adresse_stadt||'')].filter(Boolean).join(' ');
+    if(adr){ly+=5.5;doc.text(adr,L,ly);}
+    if(plzStadt){ly+=5.5;doc.text(plzStadt,L,ly);}
+    if(_profil.email){ly+=5.5;doc.text(_profil.email,L,ly);}
+    doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(107,99,85);
+    doc.text('BANKVERBINDUNG',MID,gy);
+    doc.setDrawColor(212,201,176);doc.setLineWidth(0.3);doc.line(MID,gy+1.5,R,gy+1.5);
+    var ry=gy+7;
+    doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(26,26,26);
+    if(_profil.bank_inhaber){doc.setFont('helvetica','bold');doc.text(_profil.bank_inhaber,MID,ry);doc.setFont('helvetica','normal');ry+=5.5;}
+    doc.text('IBAN: '+(_profil.bank_iban||'–'),MID,ry);ry+=5.5;
+    doc.text('BIC: '+(_profil.bank_bic||'–'),MID,ry);ry+=5.5;
+    if(_profil.bank_name)doc.text(_profil.bank_name,MID,ry);
+
+    // ── TABELLE ──────────────────────────────────────────────
+    var tableY=Math.max(ly,ry)+10;
+    var rows=[],rowMeta=[];
+    for(var d=1;d<=days;d++){
+      var dt=new Date(y,m-1,d);var dow=dt.getDay();
+      var h=parseFloat((e.tage||{})[String(d)])||0;
+      if(h>0){
+        rows.push([d+'. '+MONATE[m-1].slice(0,3)+'.',WOTAGE[dow],h.toFixed(1).replace('.',',')+' h',fmtEur(h*STUNDENSATZ)]);
+        rowMeta.push(dow===0||dow===6);
+      }
+    }
+    doc.autoTable({
+      startY:tableY,
+      head:[['Datum','Tag','Stunden','Stundenwert']],
+      body:rows,
+      foot:[['','Gesamt',total.toFixed(1).replace('.',',')+' h',fmtEur(stundenwert)]],
+      headStyles:{fillColor:[44,82,130],textColor:255,fontStyle:'bold',fontSize:8},
+      footStyles:{fillColor:[240,232,214],textColor:[29,58,110],fontStyle:'bold',fontSize:9,lineWidth:{top:0.5},lineColor:[212,201,176]},
+      columnStyles:{0:{cellWidth:36},1:{cellWidth:24},2:{halign:'right'},3:{halign:'right'}},
+      bodyStyles:{lineColor:[240,232,214],lineWidth:0.25},
+      theme:'plain',
+      styles:{fontSize:9,cellPadding:{top:3,right:4,bottom:3,left:4}},
+      didParseCell:function(data){
+        if(data.section==='body'&&rowMeta[data.row.index]){
+          data.cell.styles.fillColor=[253,247,238];
+          data.cell.styles.textColor=[107,99,85];
+        }
+      }
+    });
+
+    // ── SUMMARY BOX ──────────────────────────────────────────
+    var sy=doc.lastAutoTable.finalY+8;
+    var sx=L+4,ex=R-4,dc=diff>=0?[39,174,96]:[192,57,43];
+    doc.setFillColor(250,246,239);doc.setDrawColor(212,201,176);doc.setLineWidth(0.3);
+    doc.roundedRect(L,sy,R-L,44,2,2,'FD');
+    var r1=sy+9;
+    doc.setTextColor(26,26,26);doc.setFont('helvetica','normal');doc.setFontSize(9);
+    doc.text('Stundenwert ('+total.toFixed(1)+' h × '+STUNDENSATZ+' €)',sx,r1);
+    doc.text(fmtEur(stundenwert),ex,r1,{align:'right'});
+    doc.setDrawColor(212,201,176);doc.setLineWidth(0.2);doc.line(sx,r1+3,ex,r1+3);
+    var r2=r1+10;
+    doc.setTextColor(26,26,26);doc.text('Zeitkonto-Differenz',sx,r2);
+    doc.setTextColor(dc[0],dc[1],dc[2]);doc.setFont('helvetica','bold');
+    doc.text(diffSign+fmtEur(diff),ex,r2,{align:'right'});
+    doc.setFont('helvetica','normal');doc.setTextColor(26,26,26);
+    doc.setDrawColor(212,201,176);doc.setLineWidth(0.2);doc.line(sx,r2+3,ex,r2+3);
+    var r3=r2+10;
+    doc.text('Monatspauschale (Auszahlung)',sx,r3);
+    doc.text('170,00 €',ex,r3,{align:'right'});
+    doc.setDrawColor(44,82,130);doc.setLineWidth(0.6);doc.line(sx,r3+4,ex,r3+4);
+    var r4=r3+11;
+    doc.setTextColor(29,58,110);doc.setFont('helvetica','bold');doc.setFontSize(10);
+    doc.text('Auszahlung',sx,r4);doc.text('170,00 €',ex,r4,{align:'right'});
+
+    // ── FOOTER ───────────────────────────────────────────────
+    var fy=sy+50;
+    doc.setDrawColor(212,201,176);doc.setLineWidth(0.3);doc.line(L,fy,R,fy);
+    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(107,99,85);
+    doc.text('Erstellt am '+new Date().toLocaleDateString('de-DE')+' · Madrassa Hannover e.V. · Automatisch generierte Abrechnung',(L+R)/2,fy+5,{align:'center'});
+
+    doc.save('Abrechnung_'+nm.replace(/\s/g,'_')+'_'+monat+'.pdf');
+    showToast('✅ PDF heruntergeladen!','ok');
+  }).catch(function(){showToast('Fehler beim PDF-Erstellen','err');});
+}
+
+function showToast(msg,type){
+  var t=document.getElementById('toast');
+  t.textContent=msg;t.className=(type||'')+' show';
+  setTimeout(function(){t.className='';},3000);
+}
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){
+    navigator.serviceWorker.register('sw.js').catch(function(){});
+  });
+}
+
+/* ── PULL TO REFRESH ── */
+(function(){
+  var ptr=document.getElementById('ptrIndicator');
+  var startY=0,pulling=false,triggered=false;
+  var THRESHOLD=80;
+
+  document.addEventListener('touchstart',function(e){
+    if(window.scrollY===0){startY=e.touches[0].clientY;pulling=true;triggered=false;}
+  },{passive:true});
+
+  document.addEventListener('touchmove',function(e){
+    if(!pulling)return;
+    var dy=e.touches[0].clientY-startY;
+    if(dy>0&&window.scrollY===0){
+      var pct=Math.min(dy/THRESHOLD,1);
+      ptr.style.transform='translateX(-50%) translateY('+(Math.min(dy*0.4,40))+'px)';
+      ptr.style.opacity=pct;
+      ptr.querySelector('.ptr-arrow').style.transform='rotate('+(pct*180)+'deg)';
+      if(dy>=THRESHOLD&&!triggered){
+        triggered=true;
+        ptr.querySelector('.ptr-arrow').textContent='🔄';
+      }
+    }
+  },{passive:true});
+
+  document.addEventListener('touchend',function(){
+    if(!pulling)return;
+    pulling=false;
+    ptr.style.transform='translateX(-50%) translateY(-40px)';
+    ptr.style.opacity='0';
+    if(triggered){
+      showToast('Wird aktualisiert…','');
+      setTimeout(function(){location.reload();},400);
+    }
+  },{passive:true});
+})();
+</script>
+</body>
+</html>
