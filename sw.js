@@ -1,5 +1,5 @@
 /* Madrassa Hannover – Service Worker v3 */
-const CACHE = 'madrassa-v3';
+const CACHE = 'madrassa-v4';
 const ASSETS = [
   './',
   './index.html',
