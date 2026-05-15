@@ -1,0 +1,1462 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,viewport-fit=cover"/>
+  <title>Abwesenheit – Madrassa Hannover</title>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="Abwesenheit"/>
+  <meta name="theme-color" content="#1d3a6e"/>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="apple-touch-icon" href="images/logo.PNG"/>
+  <link rel="icon" href="images/logo.PNG" type="image/png"/>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --blue:#2c5282;--blue-light:#4070b8;--blue-dark:#1d3a6e;
+      --gold:#c4973a;--cream:#faf6ef;--sand:#f0e8d6;
+      --text:#1a1a1a;--text-muted:#6b6355;--border:#d4c9b0;
+      --green:#27ae60;--green-light:#e8f8ee;--green-dark:#1a7a42;
+      --red:#e53e3e;--red-light:#fff0f0;--red-dark:#c0392b;
+      --orange:#e67e22;--orange-light:#fef3e8;--orange-dark:#d35400;
+      --radius:14px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{height:-webkit-fill-available}
+    body{font-family:"DM Sans",sans-serif;background:var(--cream);color:var(--text);min-height:100vh;min-height:100dvh;min-height:-webkit-fill-available;overflow-x:hidden;-webkit-text-size-adjust:100%;overscroll-behavior-y:contain;}
+    button,input,select,a{touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
+    input,select,textarea{font-size:max(16px,1em)!important;}
+
+    /* ── LOGIN ── */
+    #authScreen{min-height:100vh;min-height:100dvh;background:linear-gradient(160deg,var(--blue-dark) 0%,var(--blue) 55%,var(--blue-light) 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;padding-top:calc(24px + env(safe-area-inset-top,0px));padding-bottom:calc(24px + env(safe-area-inset-bottom,0px));}
+    .auth-logo{width:80px;height:80px;border-radius:50%;background:#fff;padding:6px;object-fit:contain;box-shadow:0 8px 32px rgba(0,0,0,.25);margin-bottom:20px;}
+    .auth-title{font-family:"Amiri",serif;font-size:1.9rem;color:#fff;text-align:center;margin-bottom:4px;}
+    .auth-sub{color:rgba(255,255,255,.6);font-size:.82rem;text-align:center;margin-bottom:32px;}
+    .auth-card{background:#fff;border-radius:20px;padding:28px 24px;width:100%;max-width:360px;box-shadow:0 20px 60px rgba(0,0,0,.2);}
+    .auth-card h2{font-size:1.1rem;font-weight:600;color:var(--blue-dark);margin-bottom:20px;text-align:center;}
+    .af{display:flex;flex-direction:column;gap:12px;}
+    .af input{border:1.5px solid var(--border);border-radius:10px;padding:13px 14px;font-family:inherit;width:100%;outline:none;transition:border-color .2s;background:#fafafa;}
+    .af input:focus{border-color:var(--blue);background:#fff;}
+    .btn-primary{background:linear-gradient(135deg,var(--blue-dark),var(--blue));color:#fff;border:none;border-radius:10px;padding:14px;font-family:inherit;font-size:1rem;font-weight:600;cursor:pointer;width:100%;}
+    .btn-primary:active{opacity:.85;}
+    #authMsg{font-size:.82rem;text-align:center;margin-top:8px;min-height:20px;color:var(--red);}
+    .auth-reset{background:none;border:none;font-family:inherit;font-size:.78rem;color:var(--text-muted);cursor:pointer;width:100%;text-align:center;}
+
+    /* ── APP ── */
+    #appScreen{display:none;min-height:100vh;min-height:100dvh;padding-bottom:calc(72px + env(safe-area-inset-bottom,0px));}
+
+    /* ── HEADER ── */
+    .app-header{background:linear-gradient(135deg,var(--blue-dark),var(--blue));padding:12px 16px;padding-top:calc(12px + env(safe-area-inset-top,0px));display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.2);}
+    .app-header img{width:38px;height:38px;object-fit:contain;border-radius:50%;background:#fff;padding:2px;flex-shrink:0;}
+    .hdr-title{color:#fff;font-size:1rem;font-weight:600;line-height:1.2;}
+    .hdr-sub{color:rgba(255,255,255,.65);font-size:.7rem;}
+    .hdr-name{position:absolute;left:50%;transform:translateX(-50%);color:rgba(255,255,255,.9);font-size:.72rem;font-weight:500;pointer-events:none;white-space:nowrap;}
+    .hdr-right{margin-left:auto;display:flex;align-items:center;gap:6px;flex-shrink:0;}
+    .hdr-icon-btn{width:36px;height:36px;border-radius:10px;border:none;background:rgba(255,255,255,.15);color:#fff;font-size:1.05rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s;flex-shrink:0;text-decoration:none;}
+    .hdr-icon-btn:hover,.hdr-icon-btn:active{background:rgba(255,255,255,.28);}
+
+    /* ── BOTTOM NAV ── */
+    .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);display:flex;z-index:200;box-shadow:0 -3px 16px rgba(0,0,0,.08);padding-bottom:env(safe-area-inset-bottom,0px);}
+    .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 4px 8px;cursor:pointer;border:none;background:none;font-family:inherit;color:var(--text-muted);min-height:56px;transition:color .2s;}
+    .nav-item.on{color:var(--blue);}
+    .nav-icon{font-size:1.4rem;line-height:1;}
+    .nav-label{font-size:.6rem;font-weight:500;letter-spacing:.04em;text-transform:uppercase;margin-top:3px;}
+    .nav-item.on .nav-label{font-weight:700;}
+
+    /* ── PAGES ── */
+    .app-page{display:none;padding:16px;}
+    .app-page.on{display:block;}
+    .section-title{font-family:"Amiri",serif;font-size:1.1rem;color:var(--blue-dark);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+
+    /* ── DATUM NAV ── */
+    .datum-nav{display:flex;align-items:center;justify-content:space-between;background:#fff;border-radius:var(--radius);border:1px solid var(--border);padding:12px 16px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+    .datum-btn{background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--blue);padding:4px 10px;border-radius:8px;}
+    .datum-btn:active{background:var(--sand);}
+    .datum-label{font-weight:600;font-size:.95rem;color:var(--blue-dark);text-align:center;flex:1;}
+    .datum-today{font-size:.68rem;color:var(--text-muted);display:block;text-align:center;margin-top:2px;}
+
+    /* ── KLASSE ── */
+    .klasse-header{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
+    .klasse-name{font-family:"Amiri",serif;font-size:1.2rem;color:var(--blue-dark);font-weight:700;}
+    .klasse-stats{display:flex;gap:6px;}
+    .stat-pill{display:flex;align-items:center;gap:3px;padding:4px 9px;border-radius:20px;font-size:.72rem;font-weight:600;}
+    .stat-pill.gruen{background:var(--green-light);color:var(--green-dark);}
+    .stat-pill.rot{background:var(--red-light);color:var(--red-dark);}
+    .stat-pill.orange{background:var(--orange-light);color:var(--orange-dark);}
+    /* Alle-Anwesend Button */
+    .alle-an-btn{background:var(--blue);color:#fff;display:flex;align-items:center;gap:5px;padding:7px 11px;border-radius:10px;border:none;cursor:pointer;font-family:inherit;font-size:.75rem;font-weight:600;}
+    .alle-an-btn:active{opacity:.8;}
+    /* Bulk-Aktionen */
+    .bulk-actions{display:flex;gap:6px;margin-left:auto;}
+    .bulk-btn{display:flex;align-items:center;gap:5px;padding:7px 11px;border-radius:10px;border:none;cursor:pointer;font-family:inherit;font-size:.75rem;font-weight:600;transition:all .2s;}
+    .bulk-email{background:var(--blue);color:#fff;}
+    .bulk-push{background:var(--blue-dark);color:#fff;}
+    .bulk-btn.inactive{background:var(--sand);color:var(--text-muted);cursor:default;opacity:.55;}
+    .bulk-btn:not(.inactive):active{opacity:.8;}
+    .bulk-count{background:rgba(255,255,255,.25);border-radius:10px;padding:1px 7px;font-size:.7rem;font-weight:700;}
+
+    /* ── KLASSEN SELECT ── */
+    .klassen-select-wrap{margin-bottom:16px;}
+    .klassen-select{width:100%;padding:12px 14px;border-radius:var(--radius);border:1.5px solid var(--border);background:#fff;font-family:inherit;font-size:.9rem;font-weight:500;color:var(--text);cursor:pointer;}
+    .klassen-select:focus{outline:none;border-color:var(--blue);}
+
+    /* ── SCHÜLER KOMPAKT ── */
+    .schueler-list{display:flex;flex-direction:column;gap:5px;}
+    .sc-row{display:flex;align-items:center;gap:8px;background:#fff;border-radius:10px;border-left:4px solid var(--border);padding:9px 10px;transition:border-color .15s,background .15s;animation:fadeUp .2s ease both;}
+    .sc-row.st-anwesend{border-left-color:var(--green);background:var(--green-light);}
+    .sc-row.st-abwesend{border-left-color:var(--red);background:var(--red-light);}
+    .sc-row.st-unentschuldigt{border-left-color:var(--orange);background:var(--orange-light);}
+    .sc-row-num{font-size:.68rem;color:var(--text-muted);width:16px;text-align:right;flex-shrink:0;}
+    .sc-row-name{flex:1;font-size:.88rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;cursor:pointer;transition:color .18s;}
+    .sc-row-name.name-aktiv{color:var(--blue);font-weight:700;}
+    .sc-phone-row{display:none;width:100%;padding:5px 4px 2px 22px;align-items:center;gap:8px;flex-wrap:wrap;}
+    .sc-phone-row.show{display:flex;}
+    .sc-phone-num{font-size:.82rem;color:var(--blue-dark);font-weight:500;}
+    .sc-phone-num.leer{color:var(--text-muted);font-style:italic;}
+    .sc-call-btn{display:flex;align-items:center;gap:4px;background:var(--blue);color:#fff;border:none;border-radius:8px;padding:5px 10px;font-family:inherit;font-size:.75rem;font-weight:600;cursor:pointer;text-decoration:none;flex-shrink:0;}
+    .sc-call-btn:active{opacity:.8;}
+    .sc-wa-btn{background:#25d366;}
+    .sc-row-sel{border:1.5px solid var(--border);border-radius:8px;background:#fff;font-family:inherit;padding:6px 24px 6px 8px;font-size:.78rem;font-weight:600;cursor:pointer;outline:none;flex-shrink:0;color:var(--text-muted);-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236b6355'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 7px center;}
+    .sc-row-sel.st-anwesend{background-color:var(--green);color:#fff;border-color:var(--green);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23fff'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 7px center;}
+    .sc-row-sel.st-abwesend{background-color:var(--red);color:#fff;border-color:var(--red);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23fff'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 7px center;}
+    .sc-row-sel.st-unentschuldigt{background-color:var(--orange);color:#fff;border-color:var(--orange);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23fff'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 7px center;}
+    .sc-email-btn{flex-shrink:0;width:30px;height:30px;border-radius:8px;border:none;background:var(--orange-light);color:var(--orange-dark);font-size:.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+    .sc-email-btn.sent{background:var(--green-light);color:var(--green-dark);}
+    .sc-push-btn{flex-shrink:0;width:30px;height:30px;border-radius:8px;border:none;background:var(--blue-light);color:#fff;font-size:.85rem;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:.7;}
+    .sc-push-btn.sent{background:var(--green-light);color:var(--green-dark);opacity:1;}
+
+    /* Speichern */
+    .save-all-btn{display:none;}
+
+    /* ── VERLAUF ── */
+    .verlauf-filter{display:flex;gap:8px;margin-bottom:14px;overflow-x:auto;scrollbar-width:none;}
+    .verlauf-filter::-webkit-scrollbar{display:none;}
+    .vf-btn{flex:0 0 auto;padding:7px 14px;border-radius:20px;border:1.5px solid var(--border);background:#fff;font-family:inherit;font-size:.78rem;font-weight:500;cursor:pointer;white-space:nowrap;color:var(--text-muted);transition:all .2s;}
+    .vf-btn.on{background:var(--blue);color:#fff;border-color:var(--blue);}
+    .verlauf-item{background:#fff;border-radius:var(--radius);border:1px solid var(--border);padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;}
+    .vi-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
+    .vi-dot.anwesend{background:var(--green);}
+    .vi-dot.abwesend{background:var(--red);}
+    .vi-dot.unentschuldigt{background:var(--orange);}
+    .vi-info{flex:1;}
+    .vi-name{font-weight:600;font-size:.9rem;}
+    .vi-meta{font-size:.72rem;color:var(--text-muted);margin-top:2px;}
+    .vi-datum{font-size:.75rem;color:var(--text-muted);text-align:right;flex-shrink:0;}
+
+    /* ── AUSWERTUNG ── */
+    .gesamt-card{background:linear-gradient(135deg,var(--blue-dark),var(--blue));border-radius:var(--radius);padding:18px;margin-bottom:16px;color:#fff;display:flex;gap:10px;}
+    .gesamt-stat{flex:1;text-align:center;}
+    .gesamt-zahl{font-size:1.7rem;font-weight:700;line-height:1;}
+    .gesamt-label{font-size:.65rem;opacity:.75;margin-top:4px;letter-spacing:.04em;}
+    .auswert-card{background:#fff;border-radius:var(--radius);border:1px solid var(--border);padding:16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+    .auswert-name{font-weight:600;font-size:.9rem;margin-bottom:10px;}
+    .progress-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+    .progress-label{font-size:.72rem;color:var(--text-muted);width:90px;flex-shrink:0;}
+    .progress-bar{flex:1;height:8px;background:var(--sand);border-radius:4px;overflow:hidden;}
+    .progress-fill{height:100%;border-radius:4px;transition:width .5s ease;}
+    .pf-green{background:var(--green);}
+    .pf-red{background:var(--red);}
+    .pf-orange{background:var(--orange);}
+    .progress-pct{font-size:.72rem;font-weight:600;width:34px;text-align:right;flex-shrink:0;}
+
+    /* ── MODAL ── */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;display:flex;align-items:flex-end;justify-content:center;padding-bottom:env(safe-area-inset-bottom,0px);opacity:0;pointer-events:none;transition:opacity .25s;}
+    .modal-overlay.show{opacity:1;pointer-events:all;}
+    .modal-sheet{background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:540px;padding:20px 20px 28px;transform:translateY(100%);transition:transform .3s cubic-bezier(.34,1.1,.64,1);}
+    .modal-overlay.show .modal-sheet{transform:none;}
+    .modal-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px;}
+    .modal-title{font-family:"Amiri",serif;font-size:1.2rem;color:var(--blue-dark);margin-bottom:10px;}
+    .modal-info{font-size:.82rem;color:var(--text-muted);margin-bottom:12px;}
+    .modal-textarea{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:12px;font-family:inherit;resize:none;min-height:90px;}
+    .modal-textarea:focus{outline:none;border-color:var(--blue);}
+    .modal-actions{display:flex;gap:10px;margin-top:14px;}
+    .modal-btn{flex:1;padding:13px;border-radius:11px;border:none;font-family:inherit;font-size:.9rem;font-weight:600;cursor:pointer;}
+    .modal-btn-cancel{background:var(--sand);color:var(--text-muted);}
+    .modal-btn-send{background:linear-gradient(135deg,var(--blue-dark),var(--blue));color:#fff;}
+
+    /* ── ANSICHT TOGGLE ── */
+    .ansicht-toggle{display:flex;gap:6px;margin-bottom:14px;}
+    .ansicht-btn{flex:1;padding:9px 12px;border-radius:10px;border:1.5px solid var(--border);background:#fff;font-family:inherit;font-size:.82rem;font-weight:500;cursor:pointer;color:var(--text-muted);transition:all .2s;display:flex;align-items:center;justify-content:center;gap:5px;}
+    .ansicht-btn.on{background:var(--blue);color:#fff;border-color:var(--blue);font-weight:700;}
+    .ansicht-btn:not(.on):active{background:var(--sand);}
+
+    /* ── MONATSKALENDER ── */
+    .monat-nav{display:flex;align-items:center;justify-content:space-between;background:#fff;border-radius:var(--radius);border:1px solid var(--border);padding:12px 16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+    .monat-label{font-weight:700;font-size:1rem;color:var(--blue-dark);text-align:center;flex:1;}
+    .monat-btn{background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--blue);padding:4px 10px;border-radius:8px;}
+    .monat-btn:active{background:var(--sand);}
+    .kalender-grid{background:#fff;border-radius:var(--radius);border:1px solid var(--border);overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.04);margin-bottom:12px;}
+    .kal-wochentage{display:grid;grid-template-columns:repeat(7,1fr);background:var(--sand);border-bottom:1px solid var(--border);}
+    .kal-wt{text-align:center;padding:8px 2px;font-size:.62rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);}
+    .kal-wt:first-child,.kal-wt:last-child{color:var(--red-dark);}
+    .kal-tage{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--border);}
+    .kal-tag{background:#fff;min-height:52px;padding:5px 4px;display:flex;flex-direction:column;align-items:center;cursor:pointer;transition:background .15s;position:relative;}
+    .kal-tag:active{background:var(--sand);}
+    .kal-tag.leer{background:#fafafa;cursor:default;}
+    .kal-tag.heute-ring .kal-tag-num{background:var(--blue);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-weight:700;}
+    .kal-tag.gewählt{background:var(--sand);}
+    .kal-tag-num{font-size:.82rem;font-weight:600;color:var(--text);margin-bottom:3px;min-width:22px;text-align:center;}
+    .kal-tag.leer .kal-tag-num{color:var(--border);}
+    .kal-tag.wo{background:#fafafa;} /* Wochenende leicht anders */
+    .kal-punkte{display:flex;gap:2px;flex-wrap:wrap;justify-content:center;max-width:32px;}
+    .kal-p{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+    .kal-p.anwesend{background:var(--green);}
+    .kal-p.abwesend{background:var(--red);}
+    .kal-p.unentschuldigt{background:var(--orange);}
+    .kal-legende{display:flex;gap:12px;justify-content:center;margin-bottom:12px;flex-wrap:wrap;}
+    .kal-leg-item{display:flex;align-items:center;gap:5px;font-size:.72rem;color:var(--text-muted);}
+    .kal-leg-dot{width:8px;height:8px;border-radius:50%;}
+    .kal-tag-detail{background:#fff;border-radius:var(--radius);border:1px solid var(--border);padding:14px;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+    .kal-detail-header{font-weight:700;font-size:.95rem;color:var(--blue-dark);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;}
+    .kal-detail-close{background:none;border:none;font-size:1.1rem;cursor:pointer;color:var(--text-muted);}
+
+    /* ── BESTÄTIGUNGS-MODAL ── */
+    .confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:600;display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;pointer-events:none;transition:opacity .2s;}
+    .confirm-overlay.show{opacity:1;pointer-events:all;}
+    .confirm-box{background:#fff;border-radius:18px;padding:24px 20px;width:100%;max-width:320px;box-shadow:0 20px 60px rgba(0,0,0,.25);transform:scale(.92);transition:transform .2s;}
+    .confirm-overlay.show .confirm-box{transform:scale(1);}
+    .confirm-title{font-weight:700;font-size:1rem;color:var(--blue-dark);margin-bottom:8px;}
+    .confirm-msg{font-size:.85rem;color:var(--text-muted);margin-bottom:20px;line-height:1.5;}
+    .confirm-actions{display:flex;gap:10px;}
+    .confirm-cancel{flex:1;padding:12px;border-radius:10px;border:none;background:var(--sand);color:var(--text-muted);font-family:inherit;font-size:.9rem;font-weight:600;cursor:pointer;}
+    .confirm-ok{flex:1;padding:12px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--blue-dark),var(--blue));color:#fff;font-family:inherit;font-size:.9rem;font-weight:600;cursor:pointer;}
+
+    /* ── OFFLINE BANNER ── */
+    #offlineBanner{display:none;position:fixed;top:0;left:0;right:0;z-index:9998;background:#e67e22;color:#fff;font-size:.75rem;font-weight:600;text-align:center;padding:6px 12px;padding-top:calc(6px + env(safe-area-inset-top,0px));letter-spacing:.03em;}
+    #offlineBanner.show{display:block;}
+
+    /* ── TOAST ── */
+    #toast{position:fixed;bottom:calc(84px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%) translateY(16px);background:var(--blue-dark);color:#fff;padding:11px 22px;border-radius:11px;font-size:.82rem;opacity:0;transition:all .3s;z-index:10000;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.2);white-space:nowrap;max-width:90vw;text-align:center;}
+    #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+    .loader{text-align:center;padding:40px;color:var(--text-muted);font-size:.9rem;}
+    .loader-spin{display:inline-block;width:28px;height:28px;border:3px solid var(--sand);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;margin-bottom:10px;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+    .empty{text-align:center;padding:48px 20px;color:var(--text-muted);}
+    .empty-icon{font-size:3rem;margin-bottom:12px;}
+    .empty-text{font-size:.88rem;line-height:1.6;}
+  </style>
+</head>
+<body>
+
+<!-- BESTÄTIGUNGS-MODAL -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <div class="confirm-title" id="confirmTitle">Bestätigung</div>
+    <div class="confirm-msg" id="confirmMsg"></div>
+    <div class="confirm-actions">
+      <button class="confirm-cancel" id="confirmCancel">Abbrechen</button>
+      <button class="confirm-ok" id="confirmOk">Senden</button>
+    </div>
+  </div>
+</div>
+
+<!-- OFFLINE BANNER -->
+<div id="offlineBanner">📵 Offline – Änderungen werden lokal gespeichert und automatisch synchronisiert</div>
+
+<!-- ══ LOGIN ══ -->
+<div id="authScreen">
+  <img src="images/logo.PNG" onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name=M&background=2c5282&color=fff&size=90&bold=true&rounded=true'" alt="Logo" class="auth-logo"/>
+  <div class="auth-title">Abwesenheit</div>
+  <div class="auth-sub">Madrassa Hannover e.V.</div>
+
+  <!-- LOGIN KARTE -->
+  <div class="auth-card" id="loginCard">
+    <h2>🔐 Anmelden</h2>
+    <div class="af">
+      <input type="email" id="authEmail" placeholder="E-Mail" autocomplete="email"/>
+      <input type="password" id="authPass" placeholder="Passwort" autocomplete="current-password"/>
+      <button class="btn-primary" onclick="doLogin()">Anmelden</button>
+      <div id="authMsg"></div>
+      <div style="display:flex;justify-content:space-between;margin-top:4px;">
+        <button class="auth-reset" onclick="doReset()">Passwort vergessen?</button>
+        <button class="auth-reset" onclick="showRegister()" style="color:var(--blue);">Registrieren →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- REGISTRIERUNG KARTE -->
+  <div class="auth-card" id="registerCard" style="display:none;">
+    <h2>📝 Registrieren</h2>
+    <div class="af">
+      <div style="display:flex;gap:8px;">
+        <input type="text" id="regVorname" placeholder="Vorname" autocomplete="given-name"/>
+        <input type="text" id="regNachname" placeholder="Nachname" autocomplete="family-name"/>
+      </div>
+      <input type="email" id="regEmail" placeholder="E-Mail" autocomplete="email"/>
+      <input type="password" id="regPass" placeholder="Passwort (min. 6 Zeichen)" autocomplete="new-password"/>
+      <input type="password" id="regPass2" placeholder="Passwort wiederholen" autocomplete="new-password"/>
+      <button class="btn-primary" onclick="doRegister()">✅ Account erstellen</button>
+      <div id="regMsg"></div>
+      <button class="auth-reset" onclick="showLogin()">← Zurück zum Login</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══ APP ══ -->
+<div id="appScreen">
+  <header class="app-header" style="position:sticky;">
+    <img src="images/logo.PNG" onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name=M&background=2c5282&color=fff&size=90&bold=true&rounded=true'" alt="Logo"/>
+    <div>
+      <div class="hdr-title">Abwesenheit</div>
+      <div class="hdr-sub">Madrassa Hannover e.V.</div>
+    </div>
+    <span class="hdr-name" id="hdrName">–</span>
+    <div class="hdr-right">
+      <a href="index.html" class="hdr-icon-btn" title="Portal" style="opacity:.75;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      </a>
+      <button class="hdr-icon-btn" onclick="doLogout()" title="Abmelden">⏻</button>
+    </div>
+  </header>
+
+  <!-- HEUTE -->
+  <div class="app-page on" id="pg-heute">
+    <!-- Ansicht-Toggle: Tag / Monat -->
+    <div class="ansicht-toggle">
+      <button class="ansicht-btn on" id="ansichtTagBtn" onclick="setAnsicht('tag',this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Tagesansicht
+      </button>
+      <button class="ansicht-btn" id="ansichtMonatBtn" onclick="setAnsicht('monat',this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><rect x="7" y="14" width="3" height="3" rx=".5"/><rect x="14" y="14" width="3" height="3" rx=".5"/></svg>
+        Monatsübersicht
+      </button>
+    </div>
+
+    <!-- TAG-ANSICHT -->
+    <div id="tagAnsicht">
+      <div class="datum-nav">
+        <button class="datum-btn" onclick="changeDate(-1)">‹</button>
+        <div>
+          <div class="datum-label" id="datumLabel">–</div>
+          <span class="datum-today" id="datumSub"></span>
+        </div>
+        <button class="datum-btn" onclick="changeDate(1)">›</button>
+      </div>
+      <div class="klassen-select-wrap" id="klassenSelectWrap" style="display:none;">
+        <select class="klassen-select" id="klassenSelect" onchange="loadKlasse(this.value)">
+          <option value="">– Klasse wählen –</option>
+        </select>
+      </div>
+      <div id="heuteContent"><div class="loader"><div class="loader-spin"></div><br/>Lade…</div></div>
+    </div>
+
+    <!-- MONATS-ANSICHT -->
+    <div id="monatAnsicht" style="display:none;">
+      <div class="monat-nav">
+        <button class="monat-btn" onclick="changeKalenderMonat(-1)">‹</button>
+        <div class="monat-label" id="kalenderMonatLabel">–</div>
+        <button class="monat-btn" onclick="changeKalenderMonat(1)">›</button>
+      </div>
+      <div class="kal-legende">
+        <div class="kal-leg-item"><div class="kal-leg-dot" style="background:var(--green)"></div>Anwesend</div>
+        <div class="kal-leg-item"><div class="kal-leg-dot" style="background:var(--red)"></div>Abwesend</div>
+        <div class="kal-leg-item"><div class="kal-leg-dot" style="background:var(--orange)"></div>Unentschuldigt</div>
+      </div>
+      <div class="kalender-grid">
+        <div class="kal-wochentage">
+          <div class="kal-wt">So</div><div class="kal-wt">Mo</div><div class="kal-wt">Di</div>
+          <div class="kal-wt">Mi</div><div class="kal-wt">Do</div><div class="kal-wt">Fr</div>
+          <div class="kal-wt">Sa</div>
+        </div>
+        <div class="kal-tage" id="kalenderTage"></div>
+      </div>
+      <div id="kalenderDetail"></div>
+    </div>
+  </div>
+
+  <!-- AUSWERTUNG -->
+  <div class="app-page" id="pg-auswertung">
+    <div class="section-title">📊 Auswertung</div>
+
+    <!-- MODUS WÄHLEN -->
+    <div class="verlauf-filter" style="margin-bottom:12px;">
+      <button class="vf-btn on" id="modeMonat" onclick="setAuswMode('monat',this)">📅 Monat</button>
+      <button class="vf-btn" id="modeCustom" onclick="setAuswMode('custom',this)">📆 Zeitraum</button>
+    </div>
+
+    <!-- MONATS-NAVIGATOR -->
+    <div id="monatNav" class="datum-nav" style="margin-bottom:12px;">
+      <button class="datum-btn" onclick="changeMonat(-1)">‹</button>
+      <div>
+        <div class="datum-label" id="monatLabel">–</div>
+        <span class="datum-today" id="aktiveTageInfo"></span>
+      </div>
+      <button class="datum-btn" onclick="changeMonat(1)">›</button>
+    </div>
+
+    <!-- CUSTOM ZEITRAUM -->
+    <div id="customNav" style="display:none;background:#fff;border-radius:14px;border:1px solid var(--border);padding:14px;margin-bottom:12px;box-sizing:border-box;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+        <div>
+          <div style="font-size:.65rem;color:var(--text-muted);margin-bottom:4px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;">Von</div>
+          <input type="date" id="customVon" style="width:100%;box-sizing:border-box;border:1.5px solid var(--border);border-radius:8px;padding:9px 8px;font-family:inherit;font-size:.85rem;background:#fafafa;"/>
+        </div>
+        <div>
+          <div style="font-size:.65rem;color:var(--text-muted);margin-bottom:4px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;">Bis</div>
+          <input type="date" id="customBis" style="width:100%;box-sizing:border-box;border:1.5px solid var(--border);border-radius:8px;padding:9px 8px;font-family:inherit;font-size:.85rem;background:#fafafa;"/>
+        </div>
+      </div>
+      <button class="vf-btn on" style="width:100%;justify-content:center;display:flex;" onclick="loadAuswertung()">Anzeigen</button>
+    </div>
+
+    <!-- ANSICHT TABS -->
+    <div class="verlauf-filter" style="margin-bottom:14px;">
+      <button class="vf-btn on" id="viewSchueler" onclick="setAuswView('schueler',this)">👤 Pro Schüler</button>
+      <button class="vf-btn" id="viewKlasse" onclick="setAuswView('klasse',this)">🏫 Pro Klasse</button>
+    </div>
+
+    <div id="auswertungContent"><div class="loader"><div class="loader-spin"></div><br/>Lade…</div></div>
+
+    <!-- EXPORT -->
+    <div id="exportLeiste" style="display:none;margin-top:14px;display:flex;gap:8px;">
+      <button class="bulk-btn" style="background:var(--red-dark);color:#fff;flex:1;" onclick="exportPDF()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        PDF Export
+      </button>
+      <button class="bulk-btn" style="background:var(--green-dark);color:#fff;flex:1;" onclick="exportExcel()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+        Excel Export
+      </button>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <button class="nav-item on" onclick="showPage('heute',this)"><span class="nav-icon">📆</span><span class="nav-label">Heute</span></button>
+    <button class="nav-item" onclick="showPage('auswertung',this)"><span class="nav-icon">📊</span><span class="nav-label">Auswertung</span></button>
+  </nav>
+</div>
+
+<!-- EMAIL MODAL -->
+<div class="modal-overlay" id="emailModal" onclick="closeModal(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">✉️ E-Mail an Eltern</div>
+    <p class="modal-info" id="modalInfo">–</p>
+    <textarea class="modal-textarea" id="modalText" rows="4" placeholder="Nachricht…"></textarea>
+    <div class="modal-actions">
+      <button class="modal-btn modal-btn-cancel" onclick="closeEmailModal()">Abbrechen</button>
+      <button class="modal-btn modal-btn-send" onclick="sendEmail()">📧 Senden</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<!-- EmailJS -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<!-- jsPDF + AutoTable -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<!-- SheetJS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<script>
+/* ══ KONFIGURATION ══ */
+var EMAILJS_PUBLIC_KEY  = '';
+var EMAILJS_SERVICE_ID  = '';
+var EMAILJS_TEMPLATE_ID = '';
+
+function loadEmailJSConfig(){
+  _db.collection('einstellungen').doc('emailjs').get().then(function(s){
+    if(!s.exists){console.warn('EmailJS: Kein Dokument in Firestore gefunden.');return;}
+    var d=s.data();
+    EMAILJS_PUBLIC_KEY  = d.publicKey  || '';
+    EMAILJS_SERVICE_ID  = d.serviceId  || '';
+    EMAILJS_TEMPLATE_ID = d.templateId || '';
+    if(!EMAILJS_PUBLIC_KEY){console.warn('EmailJS: publicKey fehlt!');return;}
+    emailjs.init(EMAILJS_PUBLIC_KEY);
+    console.log('EmailJS erfolgreich initialisiert.');
+  }).catch(function(e){console.error('EmailJS Config Fehler:',e);});
+}
+
+/* ══ STATE ══ */
+var _auth,_db,_uid,_profil,_isAdmin=false;
+var _currentDate=new Date();
+var _currentKlasseId=null,_currentKlasseName='';
+var _schuelerData=[],_statusMap={},_hasChanges=false;
+var _verlaufFilter='alle',_emailModalSchuelerId=null;
+
+/* ══ FIREBASE INIT ══ */
+function initFB(){
+  if(typeof firebase==='undefined')return;
+  var app=firebase.initializeApp({
+    apiKey:'AIzaSyB7fM3rv58LNIDSicQTStcANrZ2rTqCdRQ',
+    authDomain:'madrassa-anwes.firebaseapp.com',
+    projectId:'madrassa-anwes',
+    storageBucket:'madrassa-anwes.firebasestorage.app',
+    messagingSenderId:'553887445745',
+    appId:'1:553887445745:web:a9a131c13dcf57e41e6f50'
+  },'abwesenheit');
+  _auth=app.auth(); _db=app.firestore();
+
+  /* ── OFFLINE PERSISTENCE ── */
+  _db.enablePersistence({synchronizeTabs:true})
+    .catch(function(err){
+      if(err.code==='failed-precondition'){
+        // Mehrere Tabs offen — Persistence nur in einem Tab möglich
+        console.warn('Offline-Modus: Mehrere Tabs offen, Persistence deaktiviert.');
+      } else if(err.code==='unimplemented'){
+        // Browser unterstützt IndexedDB nicht
+        console.warn('Offline-Modus: Browser nicht unterstützt.');
+      }
+    });
+
+  _auth.onAuthStateChanged(function(u){
+    if(u){_uid=u.uid;loadProfile();}else{showAuth();}
+  });
+}
+if(typeof firebase!=='undefined'){initFB();}else{window.addEventListener('load',initFB);}
+
+/* ══ AUTH ══ */
+function showAuth(){document.getElementById('authScreen').style.display='flex';document.getElementById('appScreen').style.display='none';}
+function showApp(){
+  document.getElementById('authScreen').style.display='none';
+  document.getElementById('appScreen').style.display='block';
+  loadEmailJSConfig();
+  setDateLabel();
+  if(_isAdmin){showKlassenSelect();}else{loadMeineKlasse();}
+}
+function doLogin(){
+  var e=document.getElementById('authEmail').value.trim();
+  var p=document.getElementById('authPass').value;
+  var m=document.getElementById('authMsg');
+  m.textContent='';
+  if(!e||!p){m.textContent='Bitte alle Felder ausfüllen.';return;}
+  _auth.signInWithEmailAndPassword(e,p).catch(function(err){m.textContent='Fehler: '+err.message;});
+}
+function doReset(){
+  var e=document.getElementById('authEmail').value.trim();
+  if(!e){document.getElementById('authMsg').textContent='Bitte E-Mail eingeben.';return;}
+  _auth.sendPasswordResetEmail(e).then(function(){
+    document.getElementById('authMsg').style.color='var(--green)';
+    document.getElementById('authMsg').textContent='Reset-Link gesendet!';
+  }).catch(function(err){document.getElementById('authMsg').textContent=err.message;});
+}
+
+/* ══ REGISTRIERUNG ══ */
+function showRegister(){
+  document.getElementById('loginCard').style.display='none';
+  document.getElementById('registerCard').style.display='block';
+  document.getElementById('regMsg').textContent='';
+}
+function showLogin(){
+  document.getElementById('registerCard').style.display='none';
+  document.getElementById('loginCard').style.display='block';
+  document.getElementById('authMsg').textContent='';
+}
+function doRegister(){
+  var vn=document.getElementById('regVorname').value.trim();
+  var nn=document.getElementById('regNachname').value.trim();
+  var email=document.getElementById('regEmail').value.trim();
+  var pass=document.getElementById('regPass').value;
+  var pass2=document.getElementById('regPass2').value;
+  var msg=document.getElementById('regMsg');
+  msg.style.color='var(--red)';msg.textContent='';
+
+  if(!vn||!nn){msg.textContent='Bitte Vor- und Nachname eingeben.';return;}
+  if(!email){msg.textContent='Bitte E-Mail eingeben.';return;}
+  if(pass.length<6){msg.textContent='Passwort muss mindestens 6 Zeichen haben.';return;}
+  if(pass!==pass2){msg.textContent='Passwörter stimmen nicht überein.';return;}
+
+  _auth.createUserWithEmailAndPassword(email,pass).then(function(cred){
+    return _db.collection('mitarbeiter').doc(cred.user.uid).set({
+      vorname:vn,nachname:nn,email:email,
+      klasseId:'',klasseName:'',
+      erstelltAm:firebase.firestore.FieldValue.serverTimestamp()
+    });
+  }).then(function(){
+    msg.style.color='var(--green)';
+    msg.textContent='✅ Account erstellt! Du wirst angemeldet…';
+  }).catch(function(e){
+    msg.textContent='❌ '+e.message;
+  });
+}
+function doLogout(){if(_auth)_auth.signOut();}
+
+/* ══ PROFIL ══ */
+function loadProfile(){
+  _db.collection('mitarbeiter').doc(_uid).get().then(function(s){
+    if(!s.exists){doLogout();return;}
+    _profil=s.data();
+    var nm=(_profil.vorname||'')+' '+(_profil.nachname||'');
+    document.getElementById('hdrName').textContent=nm.trim()||'–';
+    _isAdmin=false;
+    _currentKlasseId=_profil.klasseId||null;
+    _currentKlasseName=_profil.klasseName||'';
+    showApp();
+  }).catch(function(){doLogout();});
+}
+
+/* ══ DATUM ══ */
+function dateStr(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function dateLong(d){
+  var T=['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+  var M=['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+  return T[d.getDay()]+', '+d.getDate()+'. '+M[d.getMonth()]+' '+d.getFullYear();
+}
+function setDateLabel(){
+  document.getElementById('datumLabel').textContent=dateLong(_currentDate);
+  var h=new Date();h.setHours(0,0,0,0);var c=new Date(_currentDate);c.setHours(0,0,0,0);
+  var diff=Math.round((c-h)/86400000);
+  document.getElementById('datumSub').textContent=diff===0?'Heute':diff===-1?'Gestern':diff===1?'Morgen':'';
+}
+function changeDate(dir){
+  _currentDate.setDate(_currentDate.getDate()+dir);
+  setDateLabel();_hasChanges=false;_statusMap={};
+  var sab=document.getElementById('saveAllBtn');if(sab)sab.classList.remove('show');
+  if(_isAdmin){if(_currentKlasseId)loadKlasse(_currentKlasseId);}else{loadMeineKlasse();}
+}
+
+/* ══ ADMIN KLASSEN ══ */
+function showKlassenSelect(){
+  document.getElementById('klassenSelectWrap').style.display='block';
+  _db.collection('klassen').orderBy('name').get().then(function(snap){
+    var sel=document.getElementById('klassenSelect');
+    sel.innerHTML='<option value="">– Klasse wählen –</option>';
+    snap.forEach(function(d){
+      var o=document.createElement('option');
+      o.value=d.id;o.textContent=d.data().name;sel.appendChild(o);
+    });
+    if(snap.size===1){sel.value=snap.docs[0].id;loadKlasse(snap.docs[0].id);}
+  });
+  document.getElementById('heuteContent').innerHTML='<div class="empty"><div class="empty-icon">👆</div><div class="empty-text">Bitte eine Klasse wählen</div></div>';
+}
+
+/* ══ LEHRER KLASSE ══ */
+function loadMeineKlasse(){
+  if(!_currentKlasseId){
+    document.getElementById('heuteContent').innerHTML='<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-text">Keine Klasse zugewiesen.<br/>Admin kontaktieren.</div></div>';
+    return;
+  }
+  loadKlasse(_currentKlasseId);
+}
+
+/* ══ KLASSE LADEN ══ */
+function loadKlasse(klasseId){
+  if(!klasseId)return;
+  _currentKlasseId=klasseId;
+  _kalenderCache={}; // Cache leeren bei Klassenwechsel
+  document.getElementById('heuteContent').innerHTML='<div class="loader"><div class="loader-spin"></div><br/>Lade Schüler…</div>';
+  _db.collection('klassen').doc(klasseId).get().then(function(kDoc){
+    _currentKlasseName=kDoc.exists?kDoc.data().name:'Klasse';
+    return _db.collection('schueler').where('klasseId','==',klasseId).orderBy('name').get();
+  }).then(function(snap){
+    _schuelerData=[];
+    snap.forEach(function(d){_schuelerData.push(Object.assign({id:d.id},d.data()));});
+    return _db.collection('abwesenheit').where('klasseId','==',klasseId).where('datum','==',dateStr(_currentDate)).get();
+  }).then(function(aSnap){
+    _statusMap={};
+    aSnap.forEach(function(d){
+      var dt=d.data();
+      _statusMap[dt.schuelerId]={status:dt.status,notiz:dt.notiz||'',docId:d.id,emailGesendet:dt.emailGesendet||false,pushGesendet:dt.pushGesendet||false};
+    });
+    renderHeuteList();
+  }).catch(function(e){
+    document.getElementById('heuteContent').innerHTML='<div class="empty"><div class="empty-icon">❌</div><div class="empty-text">'+e.message+'</div></div>';
+  });
+}
+
+/* ══ RENDER HEUTE ══ */
+function statusText(st){return st==='anwesend'?'Anwesend':st==='abwesend'?'Abwesend':st==='unentschuldigt'?'Unentschuldigt':'– Status –';}
+
+function renderHeuteList(){
+  var c=document.getElementById('heuteContent');
+  if(!_schuelerData.length){
+    c.innerHTML='<div class="empty"><div class="empty-icon">👥</div><div class="empty-text">Keine Schüler in dieser Klasse.</div></div>';return;
+  }
+  var une=0;
+  _schuelerData.forEach(function(s){var st=(_statusMap[s.id]||{}).status;if(st==='unentschuldigt')une++;});
+  var html='<div class="klasse-header"><div class="klasse-name">Klasse: '+_currentKlasseName+'</div>';
+  // Alle-Anwesend Button
+  html+='<button class="bulk-btn alle-an-btn" onclick="alleAnwesend()" title="Alle als anwesend markieren">';
+  html+='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Alle an';
+  html+='</button>';
+  // Bulk-Aktionen oben rechts
+  html+='<div class="bulk-actions">';
+  html+='<button class="bulk-btn bulk-email'+(une>0?'':' inactive')+'" id="bulkEmailBtn" onclick="sendBulkEmail()" title="E-Mail an alle unentschuldigten Eltern">';
+  html+='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 7L2 7"/></svg>';
+  if(une>0)html+='<span class="bulk-count">'+une+'</span>';
+  html+='</button>';
+  html+='<button class="bulk-btn bulk-push'+(une>0?'':' inactive')+'" id="bulkPushBtn" onclick="sendBulkPush()" title="Push an alle unentschuldigten Eltern">';
+  html+='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>';
+  if(une>0)html+='<span class="bulk-count">'+une+'</span>';
+  html+='</button>';
+  html+='</div>';
+  html+='</div><div class="schueler-list">';
+  _schuelerData.forEach(function(s,i){
+    var sm=_statusMap[s.id]||{},st=sm.status||'';
+    var tel=s.elternTel||'';
+    html+='<div class="sc-row'+(st?' st-'+st:'')+'" id="sc-'+s.id+'" style="animation-delay:'+i*.03+'s;flex-wrap:wrap;">';
+    html+='<span class="sc-row-num">'+(i+1)+'</span>';
+    html+='<span class="sc-row-name" id="name-'+s.id+'" onclick="togglePhone(\''+s.id+'\')">'+s.name+'</span>';
+    html+='<select class="sc-row-sel'+(st?' st-'+st:'')+'" id="sel-'+s.id+'" onchange="setStatus(\''+s.id+'\',this.value)">';
+    html+='<option value="" '+(st===''?'selected':'')+'>– Status –</option>';
+    html+='<option value="anwesend" '+(st==='anwesend'?'selected':'')+'>Anwesend</option>';
+    html+='<option value="abwesend" '+(st==='abwesend'?'selected':'')+'>Abwesend</option>';
+    html+='<option value="unentschuldigt" '+(st==='unentschuldigt'?'selected':'')+'>Unentschuldigt</option>';
+    html+='</select>';
+    // Telefon-Zeile (ausgeklappt beim Klick auf Name)
+    html+='<div class="sc-phone-row" id="phone-'+s.id+'">';
+    if(tel){
+      var telClean=tel.replace(/[^0-9+]/g,'');
+      var waNum=telClean;
+      if(waNum.startsWith('+'))waNum=waNum.slice(1);
+      else if(waNum.startsWith('00'))waNum=waNum.slice(2);
+      else if(waNum.startsWith('0'))waNum='49'+waNum.slice(1);
+      html+='<span class="sc-phone-num">📞 '+tel+'</span>';
+      html+='<a class="sc-call-btn" href="tel:'+tel+'">';
+      html+='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.77a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.5 16.22z"/></svg>';
+      html+=' Anrufen</a>';
+      html+='<a class="sc-call-btn sc-wa-btn" href="https://wa.me/'+waNum+'" target="_blank">';
+      html+='<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.118 1.528 5.855L.057 23.428a.75.75 0 0 0 .916.916l5.573-1.471A11.943 11.943 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.75a9.718 9.718 0 0 1-4.953-1.355l-.355-.211-3.683.972.986-3.595-.231-.371A9.718 9.718 0 0 1 2.25 12C2.25 6.615 6.615 2.25 12 2.25S21.75 6.615 21.75 12 17.385 21.75 12 21.75z"/></svg>';
+      html+=' WhatsApp</a>';
+    } else {
+      html+='<span class="sc-phone-num leer">Keine Telefonnummer hinterlegt</span>';
+    }
+    html+='</div>';
+    html+='</div>';
+  });
+  html+='</div>';
+  c.innerHTML=html;
+  updateSaveBtn();
+}
+
+/* ══ TELEFON TOGGLE ══ */
+function togglePhone(sid){
+  var nameEl=document.getElementById('name-'+sid);
+  var phoneEl=document.getElementById('phone-'+sid);
+  if(!nameEl||!phoneEl)return;
+  var isOpen=phoneEl.classList.contains('show');
+  // alle anderen schließen
+  document.querySelectorAll('.sc-phone-row.show').forEach(function(el){el.classList.remove('show');});
+  document.querySelectorAll('.sc-row-name.name-aktiv').forEach(function(el){el.classList.remove('name-aktiv');});
+  if(!isOpen){
+    phoneEl.classList.add('show');
+    nameEl.classList.add('name-aktiv');
+  }
+}
+
+/* ══ STATUS per Dropdown ══ */
+function setStatus(sid,status){
+  if(!_statusMap[sid])_statusMap[sid]={};
+  _statusMap[sid].status=status;
+  var row=document.getElementById('sc-'+sid);
+  if(row)row.className='sc-row'+(status?' st-'+status:'');
+  var sel=document.getElementById('sel-'+sid);
+  if(sel)sel.className='sc-row-sel'+(status?' st-'+status:'');
+  updateBulkButtons();
+  autoSave(sid,status);
+}
+
+function autoSave(sid,status){
+  var s=_schuelerData.find(function(x){return x.id===sid;});
+  if(!s)return;
+  // Wenn Status zurückgesetzt → Eintrag in Firebase löschen
+  if(!status){
+    var smDel=_statusMap[sid]||{};
+    if(smDel.docId){
+      _db.collection('abwesenheit').doc(smDel.docId).delete();
+      delete _statusMap[sid];
+    }
+    return;
+  }
+  var sm=_statusMap[sid]||{};
+  var lName=_profil?(_profil.vorname||'')+' '+(_profil.nachname||''):'';
+  var data={schuelerId:sid,schueleName:s.name,klasseId:_currentKlasseId,klasseName:_currentKlasseName,datum:dateStr(_currentDate),status:status,notiz:'',emailGesendet:sm.emailGesendet||false,pushGesendet:sm.pushGesendet||false,erstelltVon:_uid,lehrerName:lName.trim(),aktualisiert:firebase.firestore.FieldValue.serverTimestamp()};
+  if(sm.docId){
+    _db.collection('abwesenheit').doc(sm.docId).update(data);
+  } else {
+    var ref=_db.collection('abwesenheit').doc();
+    _statusMap[sid].docId=ref.id;
+    _db.collection('abwesenheit').doc(ref.id).set(data);
+  }
+}
+
+function markChanged(){updateBulkButtons();}
+function updateSaveBtn(){}
+
+function updateBulkButtons(){
+  var une=_schuelerData.filter(function(s){return (_statusMap[s.id]||{}).status==='unentschuldigt';}).length;
+  var eb=document.getElementById('bulkEmailBtn');
+  var pb=document.getElementById('bulkPushBtn');
+  if(!eb||!pb)return;
+  // Email-Button
+  eb.className='bulk-btn bulk-email'+(une===0?' inactive':'');
+  eb.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 7L2 7"/></svg>'+(une>0?'<span class="bulk-count">'+une+'</span>':'');
+  // Push-Button
+  pb.className='bulk-btn bulk-push'+(une===0?' inactive':'');
+  pb.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>'+(une>0?'<span class="bulk-count">'+une+'</span>':'');
+}
+
+/* ══ BESTÄTIGUNGS-DIALOG ══ */
+function showConfirm(title, msg, okLabel, onOk){
+  var ov=document.getElementById('confirmOverlay');
+  document.getElementById('confirmTitle').textContent=title;
+  document.getElementById('confirmMsg').textContent=msg;
+  document.getElementById('confirmOk').textContent=okLabel||'OK';
+  ov.classList.add('show');
+  function cleanup(){ov.classList.remove('show');document.getElementById('confirmOk').onclick=null;document.getElementById('confirmCancel').onclick=null;}
+  document.getElementById('confirmOk').onclick=function(){cleanup();onOk();};
+  document.getElementById('confirmCancel').onclick=function(){cleanup();};
+}
+
+/* ══ BULK EMAIL ══ */
+function sendBulkEmail(){
+  if(!EMAILJS_SERVICE_ID||!EMAILJS_TEMPLATE_ID||!EMAILJS_PUBLIC_KEY){
+    toast('❌ EmailJS nicht konfiguriert – bitte Firestore-Einstellungen prüfen.');
+    return;
+  }
+  var unent=_schuelerData.filter(function(s){return (_statusMap[s.id]||{}).status==='unentschuldigt'&&s.elternEmail;});
+  var ohneEmail=_schuelerData.filter(function(s){return (_statusMap[s.id]||{}).status==='unentschuldigt'&&!s.elternEmail;});
+  if(!unent.length){
+    toast(ohneEmail.length?'❌ Keine E-Mail-Adressen hinterlegt.':'Keine unentschuldigten Schüler.');
+    return;
+  }
+  var info=unent.length+' Eltern';
+  if(ohneEmail.length)info+=' ('+ohneEmail.length+' ohne E-Mail übersprungen)';
+
+  showConfirm('E-Mail senden', 'E-Mail an '+info+' senden?', '📧 Senden', function(){
+    try{emailjs.init(EMAILJS_PUBLIC_KEY);}catch(e){}
+    var lName=_profil?(_profil.vorname||'')+' '+(_profil.nachname||''):'';
+    var gesendet=0,fehler=0;
+    unent.forEach(function(s){
+      var sm=_statusMap[s.id]||{};
+      emailjs.send(EMAILJS_SERVICE_ID,EMAILJS_TEMPLATE_ID,{
+        to_email:s.elternEmail,schueler_name:s.name,klasse_name:_currentKlasseName,
+        datum:dateLong(_currentDate),lehrer_name:lName.trim(),
+        status:'Unentschuldigt',notiz:''
+      }).then(function(){
+        if(sm.docId)_db.collection('abwesenheit').doc(sm.docId).update({emailGesendet:true});
+        sm.emailGesendet=true;
+        gesendet++;
+        if(gesendet+fehler===unent.length){
+          toast(fehler>0?'⚠️ '+gesendet+' gesendet, '+fehler+' fehlgeschlagen.':'✅ '+gesendet+' E-Mails gesendet!',3500);
+        }
+      }).catch(function(err){
+        console.error('Fehler bei '+s.name+':',err);
+        fehler++;
+        if(gesendet+fehler===unent.length){
+          toast('⚠️ '+gesendet+' gesendet, '+fehler+' fehlgeschlagen.',3500);
+        }
+      });
+    });
+  });
+}
+
+/* ══ BULK PUSH ══ */
+function sendBulkPush(){
+  var unent=_schuelerData.filter(function(s){return (_statusMap[s.id]||{}).status==='unentschuldigt';});
+  if(!unent.length){toast('Keine unentschuldigten Schüler.');return;}
+  showConfirm('Push senden','Push-Nachricht an '+unent.length+' Eltern senden?','🔔 Senden',function(){
+    var lName=_profil?(_profil.vorname||'')+' '+(_profil.nachname||''):'';
+    var batch=_db.batch();
+    unent.forEach(function(s){
+      var sm=_statusMap[s.id]||{};
+      var ref=_db.collection('pushNachrichten').doc();
+      batch.set(ref,{schuelerId:s.id,schueleName:s.name,klasseId:_currentKlasseId,klasseName:_currentKlasseName,datum:dateStr(_currentDate),status:'unentschuldigt',lehrerName:lName.trim(),erstelltVon:_uid,erstelltAm:firebase.firestore.FieldValue.serverTimestamp(),verarbeitet:false});
+      if(sm.docId)batch.update(_db.collection('abwesenheit').doc(sm.docId),{pushGesendet:true});
+    });
+    batch.commit().then(function(){toast('🔔 Push für '+unent.length+' Schüler gespeichert!');}).catch(function(e){toast('❌ Fehler: '+e.message);});
+  });
+}
+
+/* ══ SPEICHERN ══ */
+function saveAll(){
+  var batch=_db.batch();
+  var ds=dateStr(_currentDate);
+  var lName=_profil?(_profil.vorname||'')+' '+(_profil.nachname||''):'';
+  _schuelerData.forEach(function(s){
+    var sm=_statusMap[s.id];if(!sm||!sm.status)return;
+    var data={schuelerId:s.id,schueleName:s.name,klasseId:_currentKlasseId,klasseName:_currentKlasseName,datum:ds,status:sm.status,notiz:'',emailGesendet:sm.emailGesendet||false,pushGesendet:sm.pushGesendet||false,erstelltVon:_uid,lehrerName:lName.trim(),aktualisiert:firebase.firestore.FieldValue.serverTimestamp()};
+    if(sm.docId){batch.update(_db.collection('abwesenheit').doc(sm.docId),data);}
+    else{var ref=_db.collection('abwesenheit').doc();_statusMap[s.id].docId=ref.id;batch.set(ref,data);}
+  });
+  batch.commit().then(function(){_hasChanges=false;updateSaveBtn();toast('✅ Gespeichert!');})
+  .catch(function(e){toast('❌ Fehler: '+e.message);});
+}
+
+/* ══ EMAIL ══ */
+function openEmailModal(sid){
+  _emailModalSchuelerId=sid;
+  var s=_schuelerData.find(function(x){return x.id===sid;});
+  var sm=_statusMap[sid]||{};
+  document.getElementById('modalInfo').textContent='Schüler: '+(s?s.name:'')+'  ·  '+statusText(sm.status||'')+'  ·  '+dateLong(_currentDate);
+  var lName=_profil?(_profil.vorname||'')+' '+(_profil.nachname||''):'';
+  document.getElementById('modalText').value='Sehr geehrte Eltern,\n\nIhr Kind '+(s?s.name:'')+' war am '+dateLong(_currentDate)+' nicht anwesend ('+statusText(sm.status||'')+').\n\nBitte melden Sie sich bei uns.\n\nMit freundlichen Grüßen\n'+lName.trim()+'\nMadrassa Hannover e.V.';
+  document.getElementById('emailModal').classList.add('show');
+}
+function closeEmailModal(){document.getElementById('emailModal').classList.remove('show');_emailModalSchuelerId=null;}
+function closeModal(e){if(e.target===e.currentTarget)closeEmailModal();}
+function sendEmail(){
+  if(!_emailModalSchuelerId)return;
+
+  /* ── Konfiguration prüfen ── */
+  if(!EMAILJS_SERVICE_ID||!EMAILJS_TEMPLATE_ID||!EMAILJS_PUBLIC_KEY){
+    toast('❌ EmailJS nicht konfiguriert – bitte Firestore-Einstellungen prüfen.');
+    return;
+  }
+
+  var s=_schuelerData.find(function(x){return x.id===_emailModalSchuelerId;});
+  if(!s){toast('❌ Schüler nicht gefunden.');return;}
+  if(!s.elternEmail){
+    toast('❌ Keine Eltern-E-Mail für '+s.name+' hinterlegt.');
+    return;
+  }
+
+  var sm=_statusMap[_emailModalSchuelerId]||{};
+  var lName=_profil?(_profil.vorname||'')+' '+(_profil.nachname||''):'';
+
+  /* ── Sende-Button: Ladeanimation ── */
+  var sendBtn=document.querySelector('#emailModal .modal-btn-send');
+  if(sendBtn){sendBtn.textContent='⏳ Sende…';sendBtn.disabled=true;}
+
+  /* ── EmailJS neu initialisieren (Sicherheit) ── */
+  try{emailjs.init(EMAILJS_PUBLIC_KEY);}catch(e){}
+
+  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+    to_email:     s.elternEmail,
+    schueler_name:s.name,
+    klasse_name:  _currentKlasseName,
+    datum:        dateLong(_currentDate),
+    lehrer_name:  lName.trim(),
+    status:       statusText(sm.status||''),
+    notiz:        document.getElementById('modalText').value
+  }).then(function(){
+    if(sm.docId)_db.collection('abwesenheit').doc(sm.docId).update({emailGesendet:true});
+    _statusMap[_emailModalSchuelerId].emailGesendet=true;
+    closeEmailModal();
+    toast('✅ E-Mail an '+s.elternEmail+' gesendet!',3500);
+  }).catch(function(err){
+    var msg=err&&(err.text||err.message||JSON.stringify(err));
+    console.error('EmailJS Fehler:',err);
+    toast('❌ Fehler: '+(msg||'Unbekannter Fehler'));
+  }).finally(function(){
+    if(sendBtn){sendBtn.textContent='📧 Senden';sendBtn.disabled=false;}
+  });
+}
+
+/* ══ PUSH ══ */
+function sendPush(sid){
+  var s=_schuelerData.find(function(x){return x.id===sid;});
+  var sm=_statusMap[sid]||{};
+  var lName=_profil?(_profil.vorname||'')+' '+(_profil.nachname||''):'';
+  _db.collection('pushNachrichten').add({
+    schuelerId:sid,schueleName:s?s.name:'',
+    klasseId:_currentKlasseId,klasseName:_currentKlasseName,
+    datum:dateStr(_currentDate),status:sm.status||'',
+    lehrerName:lName.trim(),erstelltVon:_uid,
+    erstelltAm:firebase.firestore.FieldValue.serverTimestamp(),
+    verarbeitet:false
+  }).then(function(){
+    if(sm.docId)_db.collection('abwesenheit').doc(sm.docId).update({pushGesendet:true});
+    _statusMap[sid].pushGesendet=true;
+    var btn=document.getElementById('pushbtn-'+sid);
+    if(btn){btn.classList.add('sent');btn.textContent='✅ Push gesendet';}
+    toast('🔔 Push-Nachricht gespeichert!');
+  }).catch(function(e){toast('❌ Fehler: '+e.message);});
+}
+
+/* ══ VERLAUF ══ */
+function loadVerlauf(){
+  var c=document.getElementById('verlaufContent');
+  c.innerHTML='<div class="loader"><div class="loader-spin"></div><br/>Lade…</div>';
+  // Einfache Abfrage ohne zusammengesetzten Index
+  var q=_db.collection('abwesenheit').orderBy('datum','desc').limit(150);
+  q.get().then(function(snap){
+    var items=[];
+    snap.forEach(function(d){items.push(Object.assign({id:d.id},d.data()));});
+    // Klassen-Filter im Client
+    if(!_isAdmin&&_currentKlasseId){
+      items=items.filter(function(x){return x.klasseId===_currentKlasseId;});
+    }
+    if(_verlaufFilter!=='alle')items=items.filter(function(x){return x.status===_verlaufFilter;});
+    if(!items.length){c.innerHTML='<div class="empty"><div class="empty-icon">📭</div><div class="empty-text">Keine Einträge gefunden.</div></div>';return;}
+    var html='';
+    items.forEach(function(it){
+      html+='<div class="verlauf-item"><div class="vi-dot '+it.status+'"></div><div class="vi-info"><div class="vi-name">'+it.schueleName+'</div><div class="vi-meta">'+(it.klasseName||'')+(it.notiz?' · '+it.notiz:'')+'</div></div><div class="vi-datum">'+it.datum+'<br/><small>'+statusText(it.status)+'</small></div></div>';
+    });
+    c.innerHTML=html;
+  }).catch(function(e){c.innerHTML='<div class="empty"><div class="empty-icon">❌</div><div class="empty-text">'+e.message+'</div></div>';});
+}
+function filterVerlauf(f,btn){
+  _verlaufFilter=f;
+  document.querySelectorAll('.vf-btn').forEach(function(b){b.classList.remove('on');});
+  btn.classList.add('on');loadVerlauf();
+}
+
+/* ══ AUSWERTUNG ══ */
+/* ══ AUSWERTUNG ══ */
+var _auswMode='monat';   // 'monat' | 'custom'
+var _auswView='schueler'; // 'schueler' | 'klasse'
+var _auswMonat=new Date(); // aktueller Monat
+_auswMonat.setDate(1);
+
+var MONATE=['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+
+function setAuswMode(mode,btn){
+  _auswMode=mode;
+  document.querySelectorAll('#pg-auswertung .vf-btn[id^="mode"]').forEach(function(b){b.classList.remove('on');});
+  btn.classList.add('on');
+  document.getElementById('monatNav').style.display=mode==='monat'?'flex':'none';
+  document.getElementById('customNav').style.display=mode==='custom'?'block':'none';
+  if(mode==='monat')loadAuswertung();
+}
+function setAuswView(view,btn){
+  _auswView=view;
+  document.querySelectorAll('#pg-auswertung .vf-btn[id^="view"]').forEach(function(b){b.classList.remove('on');});
+  btn.classList.add('on');
+  loadAuswertung();
+}
+function changeMonat(dir){
+  _auswMonat.setMonth(_auswMonat.getMonth()+dir);
+  loadAuswertung();
+}
+function monatStr(d){
+  return MONATE[d.getMonth()]+' '+d.getFullYear();
+}
+function getZeitraum(){
+  if(_auswMode==='monat'){
+    var y=_auswMonat.getFullYear(),m=_auswMonat.getMonth();
+    var von=y+'-'+String(m+1).padStart(2,'0')+'-01';
+    var letzt=new Date(y,m+1,0);
+    var bis=y+'-'+String(m+1).padStart(2,'0')+'-'+String(letzt.getDate()).padStart(2,'0');
+    return {von:von,bis:bis};
+  } else {
+    return {
+      von:document.getElementById('customVon').value||'2000-01-01',
+      bis:document.getElementById('customBis').value||'2099-12-31'
+    };
+  }
+}
+
+function loadAuswertung(){
+  var c=document.getElementById('auswertungContent');
+  c.innerHTML='<div class="loader"><div class="loader-spin"></div><br/>Lade…</div>';
+
+  // Monats-Label
+  if(_auswMode==='monat'){
+    document.getElementById('monatLabel').textContent=monatStr(_auswMonat);
+  }
+
+  var zr=getZeitraum();
+  var q=_db.collection('abwesenheit')
+    .where('datum','>=',zr.von)
+    .where('datum','<=',zr.bis);
+
+  q.get().then(function(snap){
+    var items=[];
+    snap.forEach(function(d){
+      var dt=d.data();
+      if(!_isAdmin&&_currentKlasseId&&dt.klasseId!==_currentKlasseId)return;
+      items.push(dt);
+    });
+
+    // AKTIVE TAGE: nur Tage wo mind. 1 Eintrag existiert
+    var aktiveDatenSet={};
+    items.forEach(function(x){aktiveDatenSet[x.datum]=true;});
+    var aktiveTage=Object.keys(aktiveDatenSet).length;
+
+    if(_auswMode==='monat'){
+      document.getElementById('aktiveTageInfo').textContent=
+        aktiveTage>0?aktiveTage+' Unterrichtstage':'Keine Einträge';
+    }
+
+    if(_auswView==='schueler'){
+      renderAuswSchueler(items,aktiveTage,aktiveDatenSet);
+    } else {
+      renderAuswKlasse(items,aktiveTage,aktiveDatenSet);
+    }
+  }).catch(function(e){
+    c.innerHTML='<div class="empty"><div class="empty-icon">❌</div><div class="empty-text">'+e.message+'</div></div>';
+  });
+}
+
+function renderAuswSchueler(items,aktiveTage,aktiveDatenSet){
+  var c=document.getElementById('auswertungContent');
+  // Pro Schüler aggregieren — nur aktive Tage zählen
+  var stats={};
+  items.forEach(function(x){
+    if(!aktiveDatenSet[x.datum])return; // sicherheitshalber
+    if(!stats[x.schuelerId])stats[x.schuelerId]={name:x.schueleName,klasse:x.klasseName||'',a:0,b:0,u:0,tage:{}};
+    stats[x.schuelerId].tage[x.datum]=true;
+    if(x.status==='anwesend')stats[x.schuelerId].a++;
+    else if(x.status==='abwesend')stats[x.schuelerId].b++;
+    else if(x.status==='unentschuldigt')stats[x.schuelerId].u++;
+  });
+  var arr=Object.values(stats).sort(function(a,b){
+    var qa=a.a+a.b+a.u>0?a.a/(a.a+a.b+a.u):1;
+    var qb=b.a+b.b+b.u>0?b.a/(b.a+b.b+b.u):1;
+    return qa-qb;
+  });
+
+  // Gesamt
+  var gA=0,gB=0,gU=0;
+  arr.forEach(function(s){gA+=s.a;gB+=s.b;gU+=s.u;});
+  var gG=gA+gB+gU||1;
+  var quote=Math.round(gA/gG*100);
+
+  var html=renderGesamtKachel(gA,gB,gU,aktiveTage,quote);
+
+  if(!arr.length){
+    html+='<div class="empty"><div class="empty-icon">📊</div><div class="empty-text">Keine Daten für diesen Zeitraum.</div></div>';
+    c.innerHTML=html;return;
+  }
+  html+='<div class="section-title" style="margin-top:16px;">👤 Pro Schüler</div>';
+  arr.forEach(function(s){
+    var g=s.a+s.b+s.u||1;
+    var pa=Math.round(s.a/g*100),pb=Math.round(s.b/g*100),pu=Math.round(s.u/g*100);
+    var farbe=pa>=80?'var(--green-dark)':pa>=60?'var(--orange-dark)':'var(--red-dark)';
+    html+='<div class="auswert-card">';
+    html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">';
+    html+='<div class="auswert-name" style="margin:0;">'+s.name+'</div>';
+    html+='<div style="font-size:.72rem;color:var(--text-muted);">'+s.klasse+'</div>';
+    html+='<div style="font-size:1rem;font-weight:700;color:'+farbe+'">'+pa+'%</div>';
+    html+='</div>';
+    html+='<div class="progress-row"><span class="progress-label">✓ Anwesend</span><div class="progress-bar"><div class="progress-fill pf-green" style="width:'+pa+'%"></div></div><span class="progress-pct" style="color:var(--green-dark)">'+s.a+'×</span></div>';
+    html+='<div class="progress-row"><span class="progress-label">✗ Abwesend</span><div class="progress-bar"><div class="progress-fill pf-red" style="width:'+pb+'%"></div></div><span class="progress-pct" style="color:var(--red-dark)">'+s.b+'×</span></div>';
+    html+='<div class="progress-row"><span class="progress-label">⚠ Unentsch.</span><div class="progress-bar"><div class="progress-fill pf-orange" style="width:'+pu+'%"></div></div><span class="progress-pct" style="color:var(--orange-dark)">'+s.u+'×</span></div>';
+    html+='</div>';
+  });
+  c.innerHTML=html;
+  // Export-Daten befüllen
+  _exportDaten=arr.map(function(s){var g=s.a+s.b+s.u||1;return{name:s.name,klasse:s.klasse||'',a:s.a,b:s.b,u:s.u,quote:Math.round(s.a/g*100)};});
+  _exportTitel=(_auswMode==='monat'?monatStr(_auswMonat):'Zeitraum')+' – Pro Schüler';
+  document.getElementById('exportLeiste').style.display=_exportDaten.length?'flex':'none';
+}
+
+function renderAuswKlasse(items,aktiveTage,aktiveDatenSet){
+  var c=document.getElementById('auswertungContent');
+  var stats={};
+  items.forEach(function(x){
+    if(!aktiveDatenSet[x.datum])return;
+    var kid=x.klasseId||'unbekannt';
+    if(!stats[kid])stats[kid]={name:x.klasseName||'Unbekannte Klasse',a:0,b:0,u:0};
+    if(x.status==='anwesend')stats[kid].a++;
+    else if(x.status==='abwesend')stats[kid].b++;
+    else if(x.status==='unentschuldigt')stats[kid].u++;
+  });
+  var arr=Object.values(stats).sort(function(a,b){
+    var qa=a.a+a.b+a.u>0?a.a/(a.a+a.b+a.u):1;
+    var qb=b.a+b.b+b.u>0?b.a/(b.a+b.b+b.u):1;
+    return qa-qb;
+  });
+
+  var gA=0,gB=0,gU=0;
+  arr.forEach(function(k){gA+=k.a;gB+=k.b;gU+=k.u;});
+  var gG=gA+gB+gU||1;
+  var quote=Math.round(gA/gG*100);
+
+  var html=renderGesamtKachel(gA,gB,gU,aktiveTage,quote);
+
+  if(!arr.length){
+    html+='<div class="empty"><div class="empty-icon">🏫</div><div class="empty-text">Keine Daten für diesen Zeitraum.</div></div>';
+    c.innerHTML=html;return;
+  }
+
+  html+='<div class="section-title" style="margin-top:16px;">🏫 Pro Klasse</div>';
+  // Tabelle
+  html+='<div style="background:#fff;border-radius:14px;border:1px solid var(--border);overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.04);">';
+  html+='<table style="width:100%;border-collapse:collapse;">';
+  html+='<thead><tr style="background:var(--sand);">';
+  html+='<th style="padding:10px 12px;text-align:left;font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);">Klasse</th>';
+  html+='<th style="padding:10px 8px;text-align:center;font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;color:var(--green-dark);">✓</th>';
+  html+='<th style="padding:10px 8px;text-align:center;font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;color:var(--red-dark);">✗</th>';
+  html+='<th style="padding:10px 8px;text-align:center;font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;color:var(--orange-dark);">⚠</th>';
+  html+='<th style="padding:10px 12px;text-align:right;font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);">Quote</th>';
+  html+='</tr></thead><tbody>';
+  arr.forEach(function(k,i){
+    var g=k.a+k.b+k.u||1;
+    var pa=Math.round(k.a/g*100);
+    var qFarbe=pa>=80?'var(--green-dark)':pa>=60?'var(--orange-dark)':'var(--red-dark)';
+    var qBg=pa>=80?'var(--green-light)':pa>=60?'var(--orange-light)':'var(--red-light)';
+    html+='<tr style="border-top:1px solid var(--border)'+(i%2===0?'':';background:#fdfaf6')+'">';
+    html+='<td style="padding:10px 12px;font-weight:600;font-size:.85rem;">'+k.name+'</td>';
+    html+='<td style="padding:10px 8px;text-align:center;color:var(--green-dark);font-size:.85rem;">'+k.a+'</td>';
+    html+='<td style="padding:10px 8px;text-align:center;color:var(--red-dark);font-size:.85rem;">'+k.b+'</td>';
+    html+='<td style="padding:10px 8px;text-align:center;color:var(--orange-dark);font-size:.85rem;">'+k.u+'</td>';
+    html+='<td style="padding:10px 12px;text-align:right;"><span style="background:'+qBg+';color:'+qFarbe+';font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:20px;">'+pa+'%</span></td>';
+    html+='</tr>';
+  });
+  html+='</tbody></table></div>';
+  c.innerHTML=html;
+  // Export-Daten befüllen
+  _exportDaten=arr.map(function(k){var g=k.a+k.b+k.u||1;return{name:k.name,klasse:'',a:k.a,b:k.b,u:k.u,quote:Math.round(k.a/g*100)};});
+  _exportTitel=(_auswMode==='monat'?monatStr(_auswMonat):'Zeitraum')+' – Pro Klasse';
+  document.getElementById('exportLeiste').style.display=_exportDaten.length?'flex':'none';
+}
+
+function renderGesamtKachel(gA,gB,gU,aktiveTage,quote){
+  var qFarbe=quote>=80?'var(--green)':quote>=60?'var(--orange)':'var(--red)';
+  var html='<div class="gesamt-card" style="flex-wrap:wrap;gap:8px;">';
+  html+='<div class="gesamt-stat"><div class="gesamt-zahl" style="color:'+qFarbe+'">'+quote+'%</div><div class="gesamt-label">Ø Quote</div></div>';
+  html+='<div class="gesamt-stat"><div class="gesamt-zahl">'+aktiveTage+'</div><div class="gesamt-label">Unterrichtstage</div></div>';
+  html+='<div class="gesamt-stat"><div class="gesamt-zahl" style="color:rgba(255,255,255,.85)">'+gA+'</div><div class="gesamt-label">Anwesend</div></div>';
+  html+='<div class="gesamt-stat"><div class="gesamt-zahl" style="color:rgba(255,200,200,.9)">'+gB+'</div><div class="gesamt-label">Abwesend</div></div>';
+  html+='<div class="gesamt-stat"><div class="gesamt-zahl" style="color:rgba(255,220,150,.9)">'+gU+'</div><div class="gesamt-label">Unentschuld.</div></div>';
+  html+='</div>';
+  return html;
+}
+
+function initAuswertung(){
+  // Standard: aktueller Monat
+  var heute=new Date();
+  _auswMonat=new Date(heute.getFullYear(),heute.getMonth(),1);
+  // Custom: Von = Monatsanfang, Bis = heute
+  var vonStr=heute.getFullYear()+'-'+String(heute.getMonth()+1).padStart(2,'0')+'-01';
+  var bisStr=heute.getFullYear()+'-'+String(heute.getMonth()+1).padStart(2,'0')+'-'+String(heute.getDate()).padStart(2,'0');
+  document.getElementById('customVon').value=vonStr;
+  document.getElementById('customBis').value=bisStr;
+  loadAuswertung();
+}
+
+/* ══ ANSICHT TOGGLE (Tag / Monat) ══ */
+var _ansicht='tag';
+var _kalenderMonat=new Date();
+_kalenderMonat.setDate(1);
+var _kalenderCache={};
+var _kalenderGewählt=null;
+
+function setAnsicht(view,btn){
+  _ansicht=view;
+  document.querySelectorAll('.ansicht-btn').forEach(function(b){b.classList.remove('on');});
+  btn.classList.add('on');
+  document.getElementById('tagAnsicht').style.display=view==='tag'?'block':'none';
+  document.getElementById('monatAnsicht').style.display=view==='monat'?'block':'none';
+  if(view==='monat'){
+    _kalenderMonat=new Date(_currentDate.getFullYear(),_currentDate.getMonth(),1);
+    loadKalender();
+  }
+}
+
+function changeKalenderMonat(dir){
+  _kalenderMonat.setMonth(_kalenderMonat.getMonth()+dir);
+  _kalenderGewählt=null;
+  document.getElementById('kalenderDetail').innerHTML='';
+  loadKalender();
+}
+
+function loadKalender(){
+  var y=_kalenderMonat.getFullYear();
+  var m=_kalenderMonat.getMonth();
+  var vonStr=y+'-'+String(m+1).padStart(2,'0')+'-01';
+  var letzt=new Date(y,m+1,0);
+  var bisStr=y+'-'+String(m+1).padStart(2,'0')+'-'+String(letzt.getDate()).padStart(2,'0');
+  var mKey=vonStr;
+
+  document.getElementById('kalenderMonatLabel').textContent=MONATE[m]+' '+y;
+  document.getElementById('kalenderTage').innerHTML='<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--text-muted);font-size:.85rem;"><div class="loader-spin" style="display:inline-block;width:22px;height:22px;border:2px solid var(--sand);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;"></div></div>';
+
+  if(_kalenderCache[mKey]){
+    renderKalender(_kalenderCache[mKey],y,m);
+    return;
+  }
+
+  var q=_db.collection('abwesenheit')
+    .where('datum','>=',vonStr)
+    .where('datum','<=',bisStr);
+
+  // Klassen-Filter
+  q.get().then(function(snap){
+    var tageDaten={};
+    snap.forEach(function(d){
+      var dt=d.data();
+      if(!_isAdmin&&_currentKlasseId&&dt.klasseId!==_currentKlasseId)return;
+      if(!tageDaten[dt.datum])tageDaten[dt.datum]={a:0,b:0,u:0,eintraege:[]};
+      tageDaten[dt.datum].eintraege.push(dt);
+      if(dt.status==='anwesend')tageDaten[dt.datum].a++;
+      else if(dt.status==='abwesend')tageDaten[dt.datum].b++;
+      else if(dt.status==='unentschuldigt')tageDaten[dt.datum].u++;
+    });
+    _kalenderCache[mKey]=tageDaten;
+    renderKalender(tageDaten,y,m);
+  }).catch(function(e){
+    document.getElementById('kalenderTage').innerHTML='<div style="grid-column:1/-1;padding:20px;text-align:center;color:var(--red-dark);">❌ '+e.message+'</div>';
+  });
+}
+
+function renderKalender(tageDaten,y,m){
+  var heute=new Date();
+  var letzt=new Date(y,m+1,0).getDate();
+  var ersterWT=new Date(y,m,1).getDay(); // 0=So
+  var html='';
+
+  // Leere Felder vor dem 1.
+  for(var i=0;i<ersterWT;i++){
+    html+='<div class="kal-tag leer"><span class="kal-tag-num"></span></div>';
+  }
+
+  for(var tag=1;tag<=letzt;tag++){
+    var tagStr=y+'-'+String(m+1).padStart(2,'0')+'-'+String(tag).padStart(2,'0');
+    var wt=new Date(y,m,tag).getDay();
+    var istHeute=(heute.getFullYear()===y&&heute.getMonth()===m&&heute.getDate()===tag);
+    var istGewählt=(_kalenderGewählt===tagStr);
+    var daten=tageDaten[tagStr]||null;
+    var cls='kal-tag';
+    if(wt===0||wt===6)cls+=' wo';
+    if(istHeute)cls+=' heute-ring';
+    if(istGewählt)cls+=' gewählt';
+
+    html+='<div class="'+cls+'" onclick="kalenderTagKlick(\''+tagStr+'\','+tag+')">';
+    html+='<span class="kal-tag-num">'+tag+'</span>';
+    if(daten){
+      html+='<div class="kal-punkte">';
+      // Max 6 Punkte zeigen
+      var alle=[];
+      for(var j=0;j<Math.min(daten.a,3);j++)alle.push('anwesend');
+      for(var j=0;j<Math.min(daten.b,2);j++)alle.push('abwesend');
+      for(var j=0;j<Math.min(daten.u,2);j++)alle.push('unentschuldigt');
+      alle.slice(0,6).forEach(function(st){html+='<div class="kal-p '+st+'"></div>';});
+      html+='</div>';
+    }
+    html+='</div>';
+  }
+  document.getElementById('kalenderTage').innerHTML=html;
+}
+
+function kalenderTagKlick(tagStr,tagNum){
+  var y=_kalenderMonat.getFullYear();
+  var m=_kalenderMonat.getMonth();
+  var mKey=y+'-'+String(m+1).padStart(2,'0')+'-01';
+  var tageDaten=_kalenderCache[mKey]||{};
+  var daten=tageDaten[tagStr]||null;
+
+  _kalenderGewählt=tagStr;
+  renderKalender(tageDaten,y,m);
+
+  var detDiv=document.getElementById('kalenderDetail');
+  if(!daten||!daten.eintraege||!daten.eintraege.length){
+    detDiv.innerHTML='<div class="kal-tag-detail"><div class="kal-detail-header"><span>'+tagStr+'</span><button class="kal-detail-close" onclick="document.getElementById(\'kalenderDetail\').innerHTML=\'\';_kalenderGewählt=null;renderKalender(_kalenderCache[\''+mKey+'\'],'+y+','+m+')">✕</button></div><div style="color:var(--text-muted);font-size:.85rem;">Keine Einträge.</div></div>';
+    return;
+  }
+
+  var T=['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+  var wt=new Date(y,m,tagNum).getDay();
+  var überschrift=T[wt]+', '+tagNum+'. '+MONATE[m]+' '+y;
+
+  var html='<div class="kal-tag-detail">';
+  html+='<div class="kal-detail-header"><span>'+überschrift+'</span>';
+  html+='<button class="kal-detail-close" onclick="document.getElementById(\'kalenderDetail\').innerHTML=\'\';_kalenderGewählt=null;var mk=\''+mKey+'\';renderKalender(_kalenderCache[mk],'+y+','+m+')">✕</button></div>';
+
+  // Einträge
+  html+='<div class="schueler-list">';
+  daten.eintraege.forEach(function(e){
+    var farbe=e.status==='anwesend'?'var(--green)':e.status==='abwesend'?'var(--red)':'var(--orange)';
+    var bg=e.status==='anwesend'?'var(--green-light)':e.status==='abwesend'?'var(--red-light)':'var(--orange-light)';
+    html+='<div style="display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:8px;background:'+bg+';border-left:3px solid '+farbe+';">';
+    html+='<span style="flex:1;font-size:.85rem;font-weight:500;">'+e.schueleName+'</span>';
+    if(e.klasseName)html+='<span style="font-size:.7rem;color:var(--text-muted);">'+e.klasseName+'</span>';
+    html+='</div>';
+  });
+  html+='</div></div>';
+  detDiv.innerHTML=html;
+  detDiv.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+/* ══ NAV ══ */
+var _auswInitDone=false;
+function showPage(name,btn){
+  document.querySelectorAll('.app-page').forEach(function(p){p.classList.remove('on');});
+  document.querySelectorAll('.nav-item').forEach(function(b){b.classList.remove('on');});
+  document.getElementById('pg-'+name).classList.add('on');
+  btn.classList.add('on');
+  if(name==='auswertung'){if(!_auswInitDone){_auswInitDone=true;initAuswertung();}else{loadAuswertung();}}
+  window.scrollTo(0,0);
+}
+
+/* ══ ALLE ANWESEND ══ */
+function alleAnwesend(){
+  if(!_schuelerData.length)return;
+  var nochOhne=_schuelerData.filter(function(s){return !(_statusMap[s.id]||{}).status;});
+  var msg=nochOhne.length>0
+    ?'Alle '+_schuelerData.length+' Schüler als anwesend markieren?'
+    :'Status für alle Schüler auf Anwesend setzen?';
+  if(!confirm(msg))return;
+  _schuelerData.forEach(function(s){
+    if(!_statusMap[s.id])_statusMap[s.id]={};
+    _statusMap[s.id].status='anwesend';
+    var row=document.getElementById('sc-'+s.id);
+    if(row)row.className='sc-row st-anwesend';
+    var sel=document.getElementById('sel-'+s.id);
+    if(sel){sel.value='anwesend';sel.className='sc-row-sel st-anwesend';}
+    autoSave(s.id,'anwesend');
+  });
+  updateBulkButtons();
+  toast('✅ Alle als anwesend markiert!');
+}
+
+/* ══ EXPORT DATEN ══ */
+var _exportDaten=[];
+var _exportTitel='Auswertung';
+
+/* ══ PDF EXPORT ══ */
+function exportPDF(){
+  if(!_exportDaten.length){toast('Keine Daten zum Exportieren.');return;}
+  var doc=new window.jspdf.jsPDF();
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(14);
+  doc.text(_exportTitel+' – Madrassa Hannover',14,16);
+  doc.setFontSize(9);
+  doc.setFont('helvetica','normal');
+  doc.text('Exportiert am: '+new Date().toLocaleDateString('de-DE'),14,23);
+
+  var kopf=[['Name','Klasse','Anwesend','Abwesend','Unentsch.','Quote']];
+  var zeilen=_exportDaten.map(function(r){
+    return[r.name,r.klasse||'',String(r.a),String(r.b),String(r.u),r.quote+'%'];
+  });
+  doc.autoTable({
+    head:kopf,body:zeilen,startY:28,
+    styles:{fontSize:9,cellPadding:3},
+    headStyles:{fillColor:[29,58,110],textColor:255,fontStyle:'bold'},
+    alternateRowStyles:{fillColor:[250,246,239]},
+    columnStyles:{5:{halign:'right'}}
+  });
+  doc.save(_exportTitel.replace(/\s/g,'_')+'.pdf');
+  toast('📄 PDF wird heruntergeladen…');
+}
+
+/* ══ EXCEL EXPORT ══ */
+function exportExcel(){
+  if(!_exportDaten.length){toast('Keine Daten zum Exportieren.');return;}
+  var zeilen=[['Name','Klasse','Anwesend','Abwesend','Unentschuldigt','Quote %']];
+  _exportDaten.forEach(function(r){
+    zeilen.push([r.name,r.klasse||'',r.a,r.b,r.u,r.quote]);
+  });
+  var wb=XLSX.utils.book_new();
+  var ws=XLSX.utils.aoa_to_sheet(zeilen);
+  ws['!cols']=[{wch:28},{wch:14},{wch:12},{wch:12},{wch:14},{wch:10}];
+  XLSX.utils.book_append_sheet(wb,ws,_exportTitel.substring(0,31));
+  XLSX.writeFile(wb,_exportTitel.replace(/\s/g,'_')+'.xlsx');
+  toast('📊 Excel wird heruntergeladen…');
+}
+
+/* ══ TOAST ══ */
+function toast(msg,dur){var el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(function(){el.classList.remove('show');},dur||2800);}
+
+/* ══ ONLINE / OFFLINE INDIKATOR ══ */
+(function(){
+  var banner=document.getElementById('offlineBanner');
+  function update(){
+    if(navigator.onLine){
+      banner.classList.remove('show');
+    } else {
+      banner.classList.add('show');
+    }
+  }
+  window.addEventListener('online', update);
+  window.addEventListener('offline', update);
+  update(); // beim Start prüfen
+})();
+
+/* ══ SERVICE WORKER ══ */
+if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(function(){});}
+</script>
+</body>
+</html>
