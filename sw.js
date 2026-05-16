@@ -1,5 +1,5 @@
-/* Madrassa Hannover – Service Worker v5 */
-const CACHE = 'madrassa-v5'; // ← Bei jedem Deploy um 1 erhöhen → v6, v7 …
+/* Madrassa Hannover – Service Worker v6 */
+const CACHE = 'madrassa-v6'; // ← Bei jedem Deploy um 1 erhöhen → v6, v7 …
 const ASSETS = [
   './',
   './index.html',
