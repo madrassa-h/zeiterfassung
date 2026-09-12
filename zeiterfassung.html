@@ -1020,7 +1020,7 @@ function buildMitarbeiterPDF(monat,logoDataUrl){
     doc.text(fmtEur(stundenwert),ex,r1,{align:'right'});
     doc.setDrawColor(212,201,176);doc.setLineWidth(0.2);doc.line(sx,r1+3,ex,r1+3);
     var r2=r1+10;
-    doc.setTextColor(26,26,26);doc.text('Zeitkonto Vormonat',sx,r2);
+    doc.setTextColor(26,26,26);doc.text('Zeitkonto inkl. Vormonat',sx,r2);
     doc.setTextColor(dc[0],dc[1],dc[2]);doc.setFont('helvetica','bold');
     doc.text(diffSign+fmtEur(diff),ex,r2,{align:'right'});
     doc.setFont('helvetica','normal');doc.setTextColor(26,26,26);
