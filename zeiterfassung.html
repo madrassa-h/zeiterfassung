@@ -807,7 +807,7 @@ function loadVerlauf(){
       div.innerHTML='<div class="hist-mon"><div class="hist-mname">'+mname.slice(0,3)+'</div><div class="hist-myear">'+parts[0]+'</div></div>'+
         '<div class="hist-info"><div class="hist-h">'+((e.gesamtstunden||0).toFixed(1).replace('.',','))+' Std.</div>'+
         '<div class="hist-amt">170,00 €</div>'+
-        '<div class="hist-konto '+diffCls+'">Zeitkonto: '+diffSign+fmtEur(diff)+'</div></div>'+
+        '<div class="hist-konto '+diffCls+'">Zeitkonto Vormonat: '+diffSign+fmtEur(diff)+'</div></div>'+
         '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><span class="status-badge s-'+st+'">'+( labels[st]||st)+'</span>'+pdfBtn+'</div>';
       c.appendChild(div);
     });
